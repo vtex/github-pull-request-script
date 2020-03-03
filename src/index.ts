@@ -1,36 +1,8 @@
-import { Octokit } from '@octokit/rest'
-import { retry } from '@octokit/plugin-retry'
-import { throttling } from '@octokit/plugin-throttling'
+import 'dotenv/config'
+
 import { execSync } from 'child_process'
 
-const TOKEN = process.env.TOKEN
-const USER_AGENT = process.env.USER_AGENT
-
-const MyOctokit = Octokit.plugin([retry, throttling])
-
-const octokit = new MyOctokit({
-  auth: TOKEN,
-  userAgent: USER_AGENT,
-  throttle: {
-    onRateLimit: (retryAfter, options) => {
-      octokit.log.warn(
-        `Request quota exhausted for request ${options.method} ${options.url}`
-      )
-
-      if (options.request.retryCount === 0) {
-        // only retries once
-        console.log(`Retrying after ${retryAfter} seconds!`)
-        return true
-      }
-    },
-    onAbuseLimit: (retryAfter, options) => {
-      // does not retry, only logs a warning
-      octokit.log.warn(
-        `Abuse detected for request ${options.method} ${options.url}`
-      )
-    },
-  },
-})
+import { octokit } from './modules/octokit'
 
 type ChangeLogType =
   | 'Added'
@@ -59,16 +31,18 @@ export async function run({ branchName, tasks }: Params) {
   if (!tasks) {
     throw new Error('Missing required parameter `tasks`')
   }
+
   if (!Array.isArray(tasks)) {
     throw new Error('Tasks should be an array')
   }
+
   if (!tasks.every(task => typeof task === 'function')) {
-    throw new Error('Tasks should be a function that returns a Promise')
+    throw new Error('Tasks should be a function')
   }
 
   let branchCreated = false
 
-  for (const task of tasks) {
+  for await (const task of tasks) {
     const result = await task()
 
     if (!result) {
@@ -84,8 +58,6 @@ export async function run({ branchName, tasks }: Params) {
 
     createCommit(result.commitMessage)
   }
-
-  return
 }
 
 function createBranch(branchName) {

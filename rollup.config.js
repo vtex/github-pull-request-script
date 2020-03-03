@@ -14,10 +14,13 @@ export default {
       file: pkg.main,
       format: 'cjs',
     },
-    {
-      file: pkg.module,
-      format: 'es',
-    },
   ],
-  plugins: [resolve(), commonjs(), typescript(), PROD && terser()],
+  plugins: [
+    resolve({
+      preferBuiltins: true,
+    }),
+    commonjs(),
+    typescript(),
+    PROD && terser(),
+  ],
 }

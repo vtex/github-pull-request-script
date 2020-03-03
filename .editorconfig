@@ -17,10 +17,5 @@ indent_size = 4
 [*.json]
 insert_final_newline = ignore
 
-# Minified JavaScript files shouldn't be changed
-[**.min.js]
-indent_style = ignore
-insert_final_newline = ignore
-
 [*.md]
 trim_trailing_whitespace = false
