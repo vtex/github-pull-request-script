@@ -8,6 +8,7 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "@brightcove/kacl": "^0.1.8",
     "@geut/chan": "^2.1.1",
     "@geut/chan-core": "^2.1.1",
     "@vtex/test-tools": "^3.0.3",
