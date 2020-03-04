@@ -20,7 +20,6 @@ export interface ChangelogChange {
 
 export function updateChangelog(content: string, changes: ChangelogChange[]) {
   let result: string = content
-
   addChanges(content, { changes }, (err: any, file: any) => {
     if (err) {
       throw new Error(err)

@@ -1,21 +1,13 @@
 import 'dotenv/config'
 
 import './config'
-
-import { ChangelogChange } from './modules/changelog'
 import {
   hasBranch,
   resetBranch,
   createBranch,
   createCommit,
-} from './modules/git'
-
-interface TaskSuccess {
-  commitMessage: string
-  changeLog: ChangelogChange
-}
-
-type TaskFunction = () => Promise<TaskSuccess | undefined>
+} from './modules/repo'
+import { TaskFunction } from './types'
 
 interface Params {
   repo: string
