@@ -5,10 +5,10 @@ import rimraf from 'rimraf'
 
 import { ChangelogChange } from '../types'
 import { ROOT_DIR, resolveTmpDir } from '../config'
-import { fileExists, writeFileContent, getFileContent } from './fs'
+import { fileExists, writeFileContent, readFileContent } from './fs'
 import { updateChangelog } from './changelog'
 
-const REPO_NAME_PATTERN = /:(.*?)(?:\.git)?$/i
+const REPO_NAME_PATTERN = /:(.*?)\/(.*?)(?:\.git)?$/i
 
 export function shallowClone(repoUrl: string) {
   if (process.cwd() !== ROOT_DIR) {
@@ -22,18 +22,32 @@ export function shallowClone(repoUrl: string) {
   })
 }
 
+export function parseRepoUrl(repoUrl: string) {
+  const match = repoUrl.match(REPO_NAME_PATTERN)
+
+  if (!match) {
+    return { owner: null, name: null, fullName: null }
+  }
+
+  return {
+    owner: match[1],
+    name: match[2],
+    fullName: `${match[1]}/${match[2]}`,
+  }
+}
+
 export function getCurrentBranch() {
-  return String(execSync(`git rev-parse --abbrev-ref HEAD`))
+  return String(execSync(`git rev-parse --abbrev-ref HEAD`)).trim()
+}
+
+export function getTmpRepoName(repoUrl: string) {
+  const parsed = parseRepoUrl(repoUrl)
+  if (!parsed) return null
+  return `${parsed.owner}_${parsed.name}`
 }
 
 export function getRepoTmpDir(repoUrl: string) {
-  return resolveTmpDir(getRepoNameFromUrl(repoUrl) ?? repoUrl)
-}
-
-export function getRepoNameFromUrl(repoUrl: string) {
-  const match = repoUrl.match(REPO_NAME_PATTERN)
-  if (!match) return null
-  return match[1].replace(/\//g, '_')
+  return resolveTmpDir(getTmpRepoName(repoUrl) ?? repoUrl)
 }
 
 export async function hasRepoCloned(repoUrl: string) {
@@ -64,7 +78,6 @@ export function hasBranch(branchName: string) {
 }
 
 export function updateCurrentRepo() {
-  execSync(`git checkout master`, { stdio: 'ignore' })
   execSync(`git fetch origin master --depth 1`, { stdio: 'ignore' })
 }
 
@@ -100,9 +113,13 @@ export function getCurrentChangelogPath() {
   return resolve(process.cwd(), 'CHANGELOG.md')
 }
 
+export function getCurrentRepoURL() {
+  return String(execSync('git config --get remote.origin.url')).trim()
+}
+
 export async function updateCurrentChangelog(changes: ChangelogChange) {
   const path = getCurrentChangelogPath()
-  const content = (await getFileContent(path)) ?? ''
+  const content = (await readFileContent(path)) ?? ''
   const updatedContent = updateChangelog(content, [changes])
 
   return writeFileContent(path, updatedContent)

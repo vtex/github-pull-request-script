@@ -11,7 +11,7 @@ export async function fileExists(filePath: string) {
   }
 }
 
-export async function getFileContent(filePath: string) {
+export async function readFileContent(filePath: string) {
   if (!(await fileExists(filePath))) {
     return null
   }

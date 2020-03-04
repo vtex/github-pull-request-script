@@ -1,10 +1,10 @@
 import { TaskFunction } from '../types'
 import { resolvePathCurrentRepo } from '../modules/repo'
-import { getFileContent, writeFileContent } from '../modules/fs'
+import { readFileContent, writeFileContent } from '../modules/fs'
 
 const CODEOWNERS = {
-  'vtex-apps/store-framework-devs': '*',
-  'vtex-apps/technical-writers': 'docs',
+  '@vtex-apps/store-framework-devs': '*',
+  '@vtex-apps/technical-writers': 'docs/',
 }
 
 const FILENAME = 'CODEOWNERS'
@@ -15,7 +15,7 @@ function getCodeOwnersPath() {
 
 const CodeOwnersTask: TaskFunction = async () => {
   const path = getCodeOwnersPath()
-  let content = ((await getFileContent(path)) ?? '').trim()
+  let content = ((await readFileContent(path)) ?? '').trim()
 
   let updated = false
   for (const [team, glob] of Object.entries(CODEOWNERS)) {
@@ -35,7 +35,7 @@ const CodeOwnersTask: TaskFunction = async () => {
   await writeFileContent(path, content)
 
   return {
-    commitMessage: 'Updating CODEOWNERS file',
+    commitMessage: 'Update CODEOWNERS file',
     changeLog: {
       action: 'added',
       value:
