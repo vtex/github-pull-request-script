@@ -1,46 +1,54 @@
 import 'dotenv/config'
 
-import { execSync } from 'child_process'
+import './config'
 
-import { octokit } from './modules/octokit'
-
-type ChangeLogType =
-  | 'Added'
-  | 'Changed'
-  | 'Deprecated'
-  | 'Removed'
-  | 'Fixed'
-  | 'Security'
+import { ChangelogChange } from './modules/changelog'
+import {
+  hasBranch,
+  resetBranch,
+  createBranch,
+  createCommit,
+} from './modules/git'
 
 interface TaskSuccess {
   commitMessage: string
-  changeLog: {
-    type: ChangeLogType
-    entry: string
-  }
+  changeLog: ChangelogChange
 }
 
 type TaskFunction = () => Promise<TaskSuccess | undefined>
 
 interface Params {
+  repo: string
   branchName: string
   tasks: TaskFunction[]
 }
 
-export async function run({ branchName, tasks }: Params) {
-  if (!tasks) {
-    throw new Error('Missing required parameter `tasks`')
+function assertParams(params: Params) {
+  for (const param of ['repo', 'branchName', 'tasks']) {
+    if (!params[param]) {
+      throw new Error(`Missing required parameter \`${param}\``)
+    }
   }
 
-  if (!Array.isArray(tasks)) {
+  if (!Array.isArray(params.tasks)) {
     throw new Error('Tasks should be an array')
   }
 
-  if (!tasks.every(task => typeof task === 'function')) {
+  if (params.tasks.some(task => typeof task !== 'function')) {
     throw new Error('Tasks should be a function')
   }
+}
 
-  let branchCreated = false
+export async function run(params: Params) {
+  assertParams(params)
+
+  const { repo, branchName, tasks } = params
+
+  if (hasBranch(branchName)) {
+    resetBranch(branchName)
+  } else {
+    createBranch(branchName)
+  }
 
   for await (const task of tasks) {
     const result = await task()
@@ -49,36 +57,8 @@ export async function run({ branchName, tasks }: Params) {
       continue
     }
 
-    if (!branchCreated) {
-      createBranch(branchName)
-      branchCreated = true
-    }
-
     // TODO: change changelog
 
     createCommit(result.commitMessage)
   }
-}
-
-function createBranch(branchName) {
-  execSync(`git checkout -b ${branchName}`)
-}
-
-function createCommit(commitMessage) {
-  execSync('git add --all')
-  execSync(`git commit -m "${commitMessage}"`)
-}
-
-function pushChanges(branchName) {
-  execSync(`git push origin ${branchName}`)
-}
-
-function createPR({ owner, repo, title, head, base }) {
-  octokit.pulls.create({
-    owner,
-    repo,
-    title,
-    head,
-    base,
-  })
 }

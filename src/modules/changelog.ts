@@ -1,6 +1,11 @@
+import { resolve } from 'path'
+import { promises as fsPromises } from 'fs'
+
 import { addChanges } from '@geut/chan-core'
 
-type ChangeLogType =
+const { readFile } = fsPromises
+
+export type ChangeLogType =
   | 'added'
   | 'changed'
   | 'deprecated'
@@ -8,16 +13,13 @@ type ChangeLogType =
   | 'fixed'
   | 'security'
 
-interface ChangelogChange {
+export interface ChangelogChange {
   action: ChangeLogType
   value: string
 }
 
-export const updateChangelog = (
-  content: string,
-  changes: ChangelogChange[]
-) => {
-  let result
+export function updateChangelog(content: string, changes: ChangelogChange[]) {
+  let result: string = content
 
   addChanges(content, { changes }, (err: any, file: any) => {
     if (err) {
@@ -27,4 +29,9 @@ export const updateChangelog = (
   })
 
   return result
+}
+
+export function getChangelogContent(dir: string = process.cwd()) {
+  const filePath = resolve(dir, 'CHANGELOG.md')
+  return readFile(filePath).then(res => res.toString())
 }

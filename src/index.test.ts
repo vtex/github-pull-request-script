@@ -1,4 +1,4 @@
-import { run } from './index'
+import { run, hasBranch } from './index'
 
 test('lets see', async () => {
   const tasks = [
@@ -11,4 +11,12 @@ test('lets see', async () => {
   const result = await run(tasks)
 
   console.log(result)
+})
+
+test('returns true for existing branch', () => {
+  expect(hasBranch('master')).toBe(true)
+})
+
+test('returns false for non existent branch', () => {
+  expect(hasBranch('master-non-existent')).toBe(false)
 })

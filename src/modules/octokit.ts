@@ -31,3 +31,13 @@ export const octokit = new MyOctokit({
     },
   },
 })
+
+export function createPR({ owner, repo, title, head, base }) {
+  octokit.pulls.create({
+    owner,
+    repo,
+    title,
+    head,
+    base,
+  })
+}

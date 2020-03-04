@@ -1,12 +1,15 @@
 {
   "extends": "@vtex/tsconfig",
   "compilerOptions": {
+    "sourceMap": false,
     "noEmitOnError": false,
     "typeRoots": ["node_modules/@types"],
     "types": ["node", "jest"],
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "outDir": "dist"
   },
-  "exclude": ["**/__mocks__/*", "**/__tests__/*"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules/**/*", "dist", "**/*.test.ts"]
 }
