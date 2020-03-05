@@ -19,31 +19,34 @@ export interface ChangelogChange {
 }
 
 export function getUnreleasedSection(content: string) {
-  const unreleased = '[Unreleased]'
-  const index = content.indexOf(unreleased) + unreleased.length
-  const nextSectionIndex = content.indexOf('\n## [', index)
+  const unreleased = '## [Unreleased]'
+  const startIndex = content.indexOf(unreleased)
+  const endIndex = startIndex + unreleased.length
+  const nextSectionIndex = content.indexOf('\n## [', endIndex)
   const hasNextSection = nextSectionIndex !== -1
 
   return {
+    before: content.substring(0, startIndex),
     unreleased: content.substring(
-      0,
+      startIndex,
       hasNextSection ? nextSectionIndex : undefined
     ),
-    rest: hasNextSection ? content.substring(nextSectionIndex) : '',
+    after: hasNextSection ? content.substring(nextSectionIndex) : '',
   }
 }
 
 export function updateChangelog(content: string, changes: ChangelogChange[]) {
   // we do this because there's some changelogs with invalid keep-a-changelog parts and it breaks the parser
   // so we only pass the `unreleased` part and concatenate it with the rest after adding the changes
-  const { unreleased, rest } = getUnreleasedSection(content)
+  const { unreleased, before, after } = getUnreleasedSection(content)
   let result: string = content
 
-  addChanges(unreleased, { changes }, (err: any, file: any) => {
+  addChanges(`${before}${unreleased}`, { changes }, (err: any, file: any) => {
     if (err) {
       throw new Error(err)
     }
-    result = `${file}${rest}`
+    const updatedUnreleased = getUnreleasedSection(String(file)).unreleased
+    result = `${before}${updatedUnreleased}${after}`
   })
 
   return result

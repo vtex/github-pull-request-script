@@ -1,8 +1,8 @@
 import { resolve } from 'path'
 
 import { readFileContent } from './modules/fs'
-import config from '../config/config.js'
 import { ConfigObject } from './types'
+import config from '../config/config.js'
 
 const PR_TEMPLATE_TITLE_PATTERN = /^#(?:\s|\w)(.*)$/im
 

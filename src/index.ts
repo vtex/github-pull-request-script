@@ -70,8 +70,8 @@ async function main() {
       }
 
       log(`Pushing to remote "${branchName}" branch`, { indent: 1 })
-      await pushChanges(branchName, true)
-      await createPullRequest(repoURL)
+      // await pushChanges(branchName, true)
+      // await createPullRequest(repoURL)
     } catch (e) {
       log(`Some error occured.`, { indent: 1, color: 'red' })
 
