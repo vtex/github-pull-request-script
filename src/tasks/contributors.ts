@@ -30,6 +30,7 @@ const CONFIG_TEMPLATE = {
 
 const CodeOwnersTask: TaskFunction = async () => {
   let readmeFilePath
+
   for await (const path of POSSIBLE_README_FILES) {
     const absPath = resolvePathCurrentRepo(path)
     if (await fileExists(absPath)) {

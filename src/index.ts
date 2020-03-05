@@ -29,6 +29,12 @@ const TASKS = Object.entries(CONFIG.tasks)
 const { branchName } = CONFIG
 
 async function main() {
+  if (CONFIG.dryRun) {
+    log(`Running in dry-run mode. The script won't push and create PRs.`, {
+      color: 'yellow',
+    })
+  }
+
   const repoURLs = CONFIG.repos.map(repo => `git@github.com:${repo}.git`)
   const errors: Array<{ repo: string; error: Error; message?: string }> = []
 
@@ -36,9 +42,7 @@ async function main() {
     try {
       log(`Repo: ${repoURL}`)
       if (!(await hasRepoCloned(repoURL))) {
-        log(`Cloning into "${relative(ROOT_DIT, getRepoTmpDir(repoURL))}"`, {
-          indent: 1,
-        })
+        log(`Cloning...`, { indent: 1 })
         shallowClone(repoURL)
       }
 
@@ -69,9 +73,13 @@ async function main() {
         createCommit(taskResult.commitMessage)
       }
 
-      log(`Pushing to remote "${branchName}" branch`, { indent: 1 })
-      // await pushChanges(branchName, true)
-      // await createPullRequest(repoURL)
+      if (!CONFIG.dryRun) {
+        log(`Pushing to remote "${branchName}" branch and creating PR`, {
+          indent: 1,
+        })
+        await pushChanges(branchName, true)
+        await createPullRequest(repoURL)
+      }
     } catch (e) {
       log(`Some error occured.`, { indent: 1, color: 'red' })
 

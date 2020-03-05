@@ -45,6 +45,8 @@ export function updateChangelog(content: string, changes: ChangelogChange[]) {
     if (err) {
       throw new Error(err)
     }
+    // we get the only the unreleased section from the result because `chan-core` removes line breaks from the
+    // initial changelog text and we don't want to mess with that.
     const updatedUnreleased = getUnreleasedSection(String(file)).unreleased
     result = `${before}${updatedUnreleased}${after}`
   })

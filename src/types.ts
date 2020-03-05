@@ -23,5 +23,6 @@ export interface ConfigObject {
   branchName: string
   repos: string[]
   deleteAfter: boolean
+  dryRun: boolean
   tasks: Record<string, TaskFunction>
 }

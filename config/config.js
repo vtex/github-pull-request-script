@@ -9,6 +9,7 @@ export default {
   branchName: 'chore/community-chores',
   repos,
   deleteAfter: false,
+  dryRun: true,
   tasks: {
     codeowners: taskCodeOwners,
     contributors: taskContributors,
