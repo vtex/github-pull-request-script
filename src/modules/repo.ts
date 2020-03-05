@@ -136,15 +136,6 @@ export async function createPullRequest(repoUrl: string) {
   const { owner, name } = parseRepoUrl(repoUrl)
   const { title, body } = await getPullRequestTemplate()
 
-  console.log({
-    owner,
-    repo: name,
-    head: getCurrentBranch(),
-    base: 'master',
-    title,
-    body,
-  })
-
   return createPR({
     owner,
     repo: name,

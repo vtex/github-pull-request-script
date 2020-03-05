@@ -8,6 +8,7 @@ export default {
   githubToken: process.env.GH_TOKEN,
   branchName: 'chore/community-chores',
   repos,
+  deleteAfter: true,
   tasks: {
     codeowners: taskCodeOwners,
     contributors: taskContributors,

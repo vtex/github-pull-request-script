@@ -30,13 +30,14 @@
     "test:watch": "vtex-test-tools test --watch",
     "lint": "tsc --noEmit && eslint --quiet --fix --ext ts,tsx src/",
     "prepublishOnly": "run-s lint test build",
-    "go": "node -r esm index.js"
+    "go": "node -r esm dist/index.js"
   },
   "dependencies": {
     "@octokit/plugin-retry": "^3.0.1",
     "@octokit/plugin-throttling": "^3.2.0",
     "@octokit/rest": "^17.0.0",
-    "all-contributors-cli": "^6.14.0"
+    "all-contributors-cli": "^6.14.0",
+    "colors": "^1.4.0"
   },
   "repository": "git@github.com:vtex/github-pull-request-script.git",
   "keywords": [

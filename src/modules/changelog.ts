@@ -19,7 +19,7 @@ export interface ChangelogChange {
 }
 
 export function getUnreleasedSection(content: string) {
-  const unreleased = '[Unreleased]\n'
+  const unreleased = '[Unreleased]'
   const index = content.indexOf(unreleased) + unreleased.length
   const nextSectionIndex = content.indexOf('\n## [', index)
   const hasNextSection = nextSectionIndex !== -1

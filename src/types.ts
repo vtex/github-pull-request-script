@@ -17,3 +17,11 @@ export interface TaskSuccess {
 }
 
 export type TaskFunction = () => Promise<TaskSuccess | undefined>
+
+export interface ConfigObject {
+  githubToken: string
+  branchName: string
+  repos: string[]
+  deleteAfter: boolean
+  tasks: Record<string, TaskFunction>
+}

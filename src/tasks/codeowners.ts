@@ -1,6 +1,7 @@
 import { TaskFunction } from '../types'
 import { resolvePathCurrentRepo } from '../modules/repo'
 import { readFileContent, writeFileContent } from '../modules/fs'
+import { log } from '../modules/Logger'
 
 const CODEOWNERS = {
   '@vtex-apps/store-framework-devs': '*',
@@ -26,13 +27,13 @@ const CodeOwnersTask: TaskFunction = async () => {
   }
 
   if (!updated) {
-    console.log(`  - Skipping CODEOWNERS file update`)
+    log(`Skipping CODEOWNERS file update`, { indent: 2, color: 'green' })
     return
   }
 
-  console.log(`  - Updating CODEOWNERS file`)
+  log(`  - Updating CODEOWNERS file`, { indent: 2, color: 'green' })
 
-  await writeFileContent(path, content)
+  await writeFileContent(path, content.trim())
 
   return {
     commitMessage: 'Update CODEOWNERS file',

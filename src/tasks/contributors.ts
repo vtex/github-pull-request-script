@@ -9,6 +9,7 @@ import {
   parseRepoUrl,
 } from '../modules/repo'
 import { writeFileContent, fileExists, readFileContent } from '../modules/fs'
+import { log } from '../modules/Logger'
 
 const FILENAME = '.all-contributorsrc'
 
@@ -37,7 +38,9 @@ const CodeOwnersTask: TaskFunction = async () => {
   }
 
   if (readmeFilePath == null) {
-    console.log(`  - No readme file found. Skipping .all-contributorsrc task`)
+    log(`  - No readme file found. Skipping .all-contributorsrc task`, {
+      indent: 2,
+    })
     return
   }
 
@@ -52,16 +55,19 @@ const CodeOwnersTask: TaskFunction = async () => {
     projectOwner: owner,
   }
 
-  console.log(`  - Updating .all-contributorsrc file`)
+  log(`  - Updating .all-contributorsrc file`, { indent: 2, color: 'green' })
   writeFileContent(allcontributorsPath, JSON.stringify(configSample, null, 2))
 
-  console.log(`  - Updating README with contributors section`)
+  log(`  - Updating README with contributors section`, {
+    indent: 2,
+    color: 'green',
+  })
   let readmeContent = (await readFileContent(readmeFilePath)) ?? ''
 
   readmeContent = allContributors.initContributorsList(readmeContent)
   readmeContent = allContributors.initBadge(readmeContent)
 
-  await writeFileContent(readmeFilePath, readmeContent)
+  await writeFileContent(readmeFilePath, readmeContent.trim())
 
   return {
     commitMessage: 'Update .all-contributorsrc file',

@@ -2,6 +2,7 @@ import { resolve } from 'path'
 
 import { readFileContent } from './modules/fs'
 import config from '../config/config.js'
+import { ConfigObject } from './types'
 
 const PR_TEMPLATE_TITLE_PATTERN = /^#(?:\s|\w)(.*)$/im
 
@@ -9,7 +10,7 @@ export const ROOT_DIR = process.cwd()
 export const TMP_DIR = resolve(ROOT_DIR, '.tmp')
 export const CONFIG_DIR = resolve(ROOT_DIR, 'config')
 
-export function getConfig() {
+export function getConfig(): ConfigObject {
   return config
 }
 
