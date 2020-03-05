@@ -4,11 +4,14 @@ import { resolve } from 'path'
 import rimraf from 'rimraf'
 
 import { ChangelogChange } from '../types'
-import { ROOT_DIR, resolveTmpDir } from '../config'
+import { ROOT_DIR, resolveTmpDir, getPullRequestTemplate } from '../config'
 import { fileExists, writeFileContent, readFileContent } from './fs'
 import { updateChangelog } from './changelog'
+import { createPR } from './octokit'
 
 const REPO_NAME_PATTERN = /:(.*?)\/(.*?)(?:\.git)?$/i
+
+let pullRequestTemplate
 
 export function shallowClone(repoUrl: string) {
   if (process.cwd() !== ROOT_DIR) {
@@ -95,18 +98,22 @@ export function switchToBranch(branchName: string) {
 }
 
 export function createBranch(branchName) {
-  execSync(`git checkout -b ${branchName}`, {
-    stdio: 'ignore',
-  })
+  execSync(`git checkout -b ${branchName}`, { stdio: 'ignore' })
 }
 
 export function createCommit(commitMessage) {
-  execSync('git add --all')
-  execSync(`git commit -m "${commitMessage}"`)
+  execSync('git add --all', { stdio: 'ignore' })
+  execSync(`git commit -m "${commitMessage}"`, { stdio: 'ignore' })
 }
 
-export function pushChanges(branchName) {
-  execSync(`git push origin ${branchName}`)
+export function deleteRemoteBranch(branchName) {
+  execSync(`git push origin :${branchName}`, { stdio: 'ignore' })
+}
+
+export function pushChanges(branchName, force = false) {
+  execSync(`git push origin ${branchName} ${force ? '-f' : ''}`, {
+    stdio: 'ignore',
+  })
 }
 
 export function getCurrentChangelogPath() {
@@ -123,4 +130,27 @@ export async function updateCurrentChangelog(changes: ChangelogChange) {
   const updatedContent = updateChangelog(content, [changes])
 
   return writeFileContent(path, updatedContent)
+}
+
+export async function createPullRequest(repoUrl: string) {
+  const { owner, name } = parseRepoUrl(repoUrl)
+  const { title, body } = await getPullRequestTemplate()
+
+  console.log({
+    owner,
+    repo: name,
+    head: getCurrentBranch(),
+    base: 'master',
+    title,
+    body,
+  })
+
+  return createPR({
+    owner,
+    repo: name,
+    head: getCurrentBranch(),
+    base: 'master',
+    title,
+    body,
+  })
 }

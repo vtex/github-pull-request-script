@@ -29,7 +29,8 @@
     "test": "vtex-test-tools test",
     "test:watch": "vtex-test-tools test --watch",
     "lint": "tsc --noEmit && eslint --quiet --fix --ext ts,tsx src/",
-    "prepublishOnly": "run-s lint test build"
+    "prepublishOnly": "run-s lint test build",
+    "go": "node -r esm index.js"
   },
   "dependencies": {
     "@octokit/plugin-retry": "^3.0.1",

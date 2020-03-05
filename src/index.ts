@@ -1,5 +1,3 @@
-import 'dotenv/config'
-
 import './config'
 import {
   hasBranch,

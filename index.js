@@ -14,16 +14,19 @@ import {
   resetBranch,
   createCommit,
   parseRepoUrl,
+  pushChanges,
+  createPullRequest,
+  deleteRemoteBranch,
 } from './dist/modules/repo'
-import taskConfig from './tasks.config'
-import repos from './repos.json'
+import { getConfig } from './dist/config'
 
 const ROOT_DIT = process.cwd()
-const BRANCH_NAME = 'chore/community-chores'
+const CONFIG = getConfig()
+const TASKS = Object.values(CONFIG.tasks)
+const { branchName } = CONFIG
 
 async function main() {
-  const tasks = Object.values(taskConfig.tasks)
-  const repoURLs = repos.map(repo => `git@github.com:${repo}.git`)
+  const repoURLs = CONFIG.repos.map(repo => `git@github.com:${repo}.git`)
   const errors = []
 
   for await (const repoURL of repoURLs) {
@@ -42,25 +45,29 @@ async function main() {
 
       enterRepo(repoURL)
 
-      if (!hasBranch(BRANCH_NAME)) {
-        console.log(`  - Creating "${BRANCH_NAME}" branch`)
-        createBranch(BRANCH_NAME)
+      if (!hasBranch(branchName)) {
+        console.log(`  - Creating "${branchName}" branch`)
+        createBranch(branchName)
       } else {
         console.log(
-          `  - Updating the local repo and resetting "${BRANCH_NAME}" branch`
+          `  - Updating the local repo and resetting "${branchName}" branch`
         )
         updateCurrentRepo()
-        resetBranch(BRANCH_NAME)
-        switchToBranch(BRANCH_NAME)
+        resetBranch(branchName)
+        switchToBranch(branchName)
       }
 
-      for await (const task of tasks) {
+      for await (const task of TASKS) {
         const taskResult = await task()
         if (taskResult == null) continue
 
         createCommit(taskResult.commitMessage)
         await updateCurrentChangelog(taskResult.changeLog)
       }
+
+      console.log(`  - Pushing to remote "${branchName}" branch`)
+      await pushChanges(branchName, true)
+      await createPullRequest(repoURL)
     } catch (e) {
       console.log(`  - Some error occured.`)
       if (e.stack.includes('changelog.js')) {
@@ -85,7 +92,8 @@ async function main() {
   if (errors.length) {
     console.log('\nErrors:\n')
     errors.forEach(({ repo, message, error }) => {
-      console.error(`[${parseRepoUrl(repo).fullName}] ${message || error}`)
+      console.error(error)
+      // console.error(`[${parseRepoUrl(repo).fullName}] ${message || error}`)
     })
   }
 }
