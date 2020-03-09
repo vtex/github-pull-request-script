@@ -28,3 +28,7 @@ export async function readJSONFile(filePath: string) {
   const content = await readFileContent(filePath)
   return content ? JSON.parse(content) : null
 }
+
+export async function writeJSONFile(filePath: string, content: any) {
+  return writeFile(filePath, JSON.stringify(content, null, 2))
+}

@@ -17,8 +17,8 @@ import {
   createPullRequest,
   deleteRepo,
 } from './modules/repo'
-import { getConfig, getRepoList } from './config'
 import { log } from './modules/Logger'
+import { getConfig, getRepoList } from './config'
 
 const CONFIG = getConfig()
 const TASKS = Object.entries(CONFIG.tasks)

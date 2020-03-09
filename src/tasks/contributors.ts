@@ -14,6 +14,7 @@ import {
   fileExists,
   readFileContent,
   readJSONFile,
+  writeJSONFile,
 } from '../modules/fs'
 import { log } from '../modules/Logger'
 
@@ -58,8 +59,7 @@ const CodeOwnersTask: TaskFunction = async () => {
   const { owner, name } = parseRepoUrl(repoUrl)
 
   const currentAllContributorsConfig = await readJSONFile(allcontributorsPath)
-
-  const configSample = {
+  const allContributorsConfig = {
     ...CONFIG_TEMPLATE,
     ...currentAllContributorsConfig,
     files: [relative(resolvePathCurrentRepo(), readmeFilePath)],
@@ -67,14 +67,14 @@ const CodeOwnersTask: TaskFunction = async () => {
     projectOwner: owner,
   }
 
-  if (deepEqual(configSample, currentAllContributorsConfig)) {
+  if (deepEqual(allContributorsConfig, currentAllContributorsConfig)) {
     log(`Skipping .all-contributorsrc file. It's already up to date.`, {
       indent: 2,
       color: 'yellow',
     })
   } else {
     log(`Updating .all-contributorsrc file`, { indent: 2, color: 'green' })
-    writeFileContent(allcontributorsPath, JSON.stringify(configSample, null, 2))
+    writeJSONFile(allcontributorsPath, allContributorsConfig)
     steps += 1
   }
 

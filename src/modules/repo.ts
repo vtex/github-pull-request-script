@@ -1,4 +1,3 @@
-import { execSync } from 'child_process'
 import { resolve } from 'path'
 
 import rimraf from 'rimraf'
@@ -7,20 +6,21 @@ import { ChangelogChange } from '../types'
 import { ROOT_DIR, resolveTmpDir, getPullRequestTemplate } from '../config'
 import { fileExists, writeFileContent, readFileContent } from './fs'
 import { updateChangelog } from './changelog'
-import { createPR } from './octokit'
+import { createPR } from './github'
+import { runCmd } from './shell'
 
 const REPO_NAME_PATTERN = /:(.*?)\/(.*?)(?:\.git)?$/i
 
-export function shallowClone(repoUrl: string) {
-  if (process.cwd() !== ROOT_DIR) {
-    throw new Error(
-      'shallowClone must be callend only when the current working directory is the root of the project.'
-    )
-  }
+export function enterRepo(repoUrl: string) {
+  process.chdir(getRepoTmpDir(repoUrl))
+}
 
-  execSync(`git clone --depth 1 ${repoUrl} ${getRepoTmpDir(repoUrl)}`, {
-    stdio: 'ignore',
-  })
+export function exitRepo() {
+  process.chdir(ROOT_DIR)
+}
+
+export function resolvePathCurrentRepo(...paths: string[]) {
+  return resolve(process.cwd(), ...paths)
 }
 
 export function parseRepoUrl(repoUrl: string) {
@@ -37,8 +37,8 @@ export function parseRepoUrl(repoUrl: string) {
   }
 }
 
-export function getCurrentBranch() {
-  return String(execSync(`git rev-parse --abbrev-ref HEAD`)).trim()
+export async function hasRepoCloned(repoUrl: string) {
+  return fileExists(getRepoTmpDir(repoUrl))
 }
 
 export function getTmpRepoName(repoUrl: string) {
@@ -51,27 +51,27 @@ export function getRepoTmpDir(repoUrl: string) {
   return resolveTmpDir(getTmpRepoName(repoUrl) ?? repoUrl)
 }
 
-export async function hasRepoCloned(repoUrl: string) {
-  return fileExists(getRepoTmpDir(repoUrl))
-}
-
-export function enterRepo(repoUrl: string) {
-  process.chdir(getRepoTmpDir(repoUrl))
-}
-
-export function exitRepo() {
-  process.chdir(ROOT_DIR)
-}
-
 export function deleteRepo(repoUrl) {
   rimraf.sync(getRepoTmpDir(repoUrl))
 }
 
+export function shallowClone(repoUrl: string) {
+  if (process.cwd() !== ROOT_DIR) {
+    throw new Error(
+      'shallowClone must be callend only when the current working directory is the root of the project.'
+    )
+  }
+
+  runCmd(`git clone --depth 1 ${repoUrl} ${getRepoTmpDir(repoUrl)}`)
+}
+
+export function getCurrentBranch() {
+  return runCmd(`git rev-parse --abbrev-ref HEAD`)
+}
+
 export function hasBranch(branchName: string) {
   try {
-    execSync(`git rev-parse --verify --quiet ${branchName}`, {
-      stdio: 'ignore',
-    })
+    runCmd(`git rev-parse --verify --quiet ${branchName}`)
     return true
   } catch {
     return false
@@ -79,47 +79,41 @@ export function hasBranch(branchName: string) {
 }
 
 export function updateCurrentRepo() {
-  execSync(`git fetch origin master --depth 1`, { stdio: 'ignore' })
-}
-
-export function resolvePathCurrentRepo(...paths: string[]) {
-  return resolve(process.cwd(), ...paths)
+  runCmd(`git fetch origin master --depth 1`)
 }
 
 export function resetBranch(branchName: string) {
-  execSync(`git checkout ${branchName}`, { stdio: 'ignore' })
-  execSync(`git reset --hard origin/master`, { stdio: 'ignore' })
+  runCmd(`git checkout ${branchName}`)
+  runCmd(`git reset --hard origin/master`)
 }
 
 export function switchToBranch(branchName: string) {
-  execSync(`git checkout ${branchName}`, { stdio: 'ignore' })
+  runCmd(`git checkout ${branchName}`)
 }
 
 export function createBranch(branchName) {
-  execSync(`git checkout -b ${branchName}`, { stdio: 'ignore' })
+  runCmd(`git checkout -b ${branchName}`)
 }
 
 export function createCommit(commitMessage) {
-  execSync('git add --all', { stdio: 'ignore' })
-  execSync(`git commit -m "${commitMessage}"`, { stdio: 'ignore' })
+  runCmd('git add --all')
+  runCmd(`git commit -m "${commitMessage}"`)
 }
 
 export function deleteRemoteBranch(branchName) {
-  execSync(`git push origin :${branchName}`, { stdio: 'ignore' })
+  runCmd(`git push origin :${branchName}`)
 }
 
 export function pushChanges(branchName, force = false) {
-  execSync(`git push origin ${branchName} ${force ? '-f' : ''}`, {
-    stdio: 'ignore',
-  })
-}
-
-export function getCurrentChangelogPath() {
-  return resolve(process.cwd(), 'CHANGELOG.md')
+  runCmd(`git push origin ${branchName} ${force ? '-f' : ''}`)
 }
 
 export function getCurrentRepoURL() {
-  return String(execSync('git config --get remote.origin.url')).trim()
+  return runCmd('git config --get remote.origin.url')
+}
+
+export function getCurrentChangelogPath() {
+  return resolvePathCurrentRepo('CHANGELOG.md')
 }
 
 export async function updateCurrentChangelog(changes: ChangelogChange) {

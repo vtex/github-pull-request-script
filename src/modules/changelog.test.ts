@@ -32,7 +32,7 @@ describe('Unreleased section', () => {
 
     expect(result).toMatchObject({
       before: baseChangelog,
-      unreleased: unreleased,
+      unreleased,
       after: version,
     })
   })
