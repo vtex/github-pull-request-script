@@ -13,7 +13,7 @@ export interface ChangelogChange {
 
 export interface TaskSuccess {
   commitMessage: string
-  changeLog: ChangelogChange
+  changeLog?: ChangelogChange
 }
 
 export type TaskFunction = () => Promise<TaskSuccess | undefined>

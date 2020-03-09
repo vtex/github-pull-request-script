@@ -27,7 +27,7 @@ const CodeOwnersTask: TaskFunction = async () => {
   }
 
   if (!updated) {
-    log(`Skipping CODEOWNERS file update`, { indent: 2, color: 'green' })
+    log(`Skipping CODEOWNERS file update`, { indent: 2, color: 'yellow' })
     return
   }
 
@@ -37,11 +37,11 @@ const CodeOwnersTask: TaskFunction = async () => {
 
   return {
     commitMessage: 'Update CODEOWNERS file',
-    changeLog: {
-      action: 'added',
-      value:
-        'Updated `CODEOWNERS` file with responsible teams for each directory.',
-    },
+    // changeLog: {
+    //   action: 'added',
+    //   value:
+    //     'Updated `CODEOWNERS` file with responsible teams for each directory.',
+    // },
   }
 }
 

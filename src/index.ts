@@ -38,6 +38,8 @@ async function main() {
   const errors: Array<{ repo: string; error: Error; message?: string }> = []
 
   for await (const repoURL of repoURLs) {
+    let changes = 0
+
     try {
       log(`Repo: ${repoURL}`)
       if (!(await hasRepoCloned(repoURL))) {
@@ -65,11 +67,23 @@ async function main() {
         const taskResult = await task()
         if (taskResult == null) continue
 
-        await updateCurrentChangelog(taskResult.changeLog)
+        changes += 1
+
+        if (taskResult.changeLog) {
+          await updateCurrentChangelog(taskResult.changeLog)
+        }
         log(`Commiting "${colors.cyan(taskResult.commitMessage)}"`, {
           indent: 2,
         })
         createCommit(taskResult.commitMessage)
+      }
+
+      if (changes === 0) {
+        log(`No changes made. Skipping pushing.`, {
+          indent: 1,
+          color: 'yellow',
+        })
+        continue
       }
 
       if (!CONFIG.dryRun) {

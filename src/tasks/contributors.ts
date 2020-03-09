@@ -42,6 +42,7 @@ const CodeOwnersTask: TaskFunction = async () => {
     const absPath = resolvePathCurrentRepo(path)
     if (await fileExists(absPath)) {
       readmeFilePath = absPath
+      break
     }
   }
 
@@ -106,10 +107,10 @@ const CodeOwnersTask: TaskFunction = async () => {
 
   return {
     commitMessage: 'Update .all-contributorsrc file',
-    changeLog: {
-      action: 'added',
-      value: 'Updated `.all-contributorsrc`.',
-    },
+    // changeLog: {
+    //   action: 'added',
+    //   value: 'Updated `.all-contributorsrc`.',
+    // },
   }
 }
 
