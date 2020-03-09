@@ -1,11 +1,8 @@
-import { relative } from 'path'
-
 import colors from 'colors/safe'
 
 import {
   shallowClone,
   hasRepoCloned,
-  getRepoTmpDir,
   enterRepo,
   exitRepo,
   hasBranch,
@@ -20,10 +17,9 @@ import {
   createPullRequest,
   deleteRepo,
 } from './modules/repo'
-import { getConfig } from './config'
+import { getConfig, getRepoList } from './config'
 import { log } from './modules/Logger'
 
-const ROOT_DIT = process.cwd()
 const CONFIG = getConfig()
 const TASKS = Object.entries(CONFIG.tasks)
 const { branchName } = CONFIG
@@ -35,7 +31,10 @@ async function main() {
     })
   }
 
-  const repoURLs = CONFIG.repos.map(repo => `git@github.com:${repo}.git`)
+  const repoURLs = (await getRepoList()).map(
+    repo => `git@github.com:${repo}.git`
+  )
+  const pulls: string[] = []
   const errors: Array<{ repo: string; error: Error; message?: string }> = []
 
   for await (const repoURL of repoURLs) {
@@ -78,7 +77,11 @@ async function main() {
           indent: 1,
         })
         await pushChanges(branchName, true)
-        await createPullRequest(repoURL)
+        const {
+          data: { number },
+        } = await createPullRequest(repoURL)
+        const { fullName } = parseRepoUrl(repoURL)
+        pulls.push(`https://github.com/${fullName}/pull/${number}`)
       }
     } catch (e) {
       log(`Some error occured.`, { indent: 1, color: 'red' })
@@ -100,6 +103,16 @@ async function main() {
 
       log('\n')
     }
+  }
+
+  if (pulls.length) {
+    log('\nCreated pull requests:')
+    pulls.forEach(url => {
+      log(`- ${colors.blue(url)}`, {
+        indent: 1,
+        type: 'log',
+      })
+    })
   }
 
   // eslint-disable-next-line vtex/prefer-early-return

@@ -23,3 +23,8 @@ export async function writeFileContent(filePath: string, content: string) {
     encoding: 'UTF-8',
   })
 }
+
+export async function readJSONFile(filePath: string) {
+  const content = await readFileContent(filePath)
+  return content ? JSON.parse(content) : null
+}

@@ -11,8 +11,6 @@ import { createPR } from './octokit'
 
 const REPO_NAME_PATTERN = /:(.*?)\/(.*?)(?:\.git)?$/i
 
-let pullRequestTemplate
-
 export function shallowClone(repoUrl: string) {
   if (process.cwd() !== ROOT_DIR) {
     throw new Error(

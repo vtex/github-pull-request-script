@@ -24,8 +24,6 @@ export default {
   githubToken: process.env.GH_TOKEN,
   // Name of the branch to make the changes
   branchName: 'chore/community-chores',
-  // List of repositories to clone, modify and create pull requests
-  repos,
   // If the script should delete each local clone after creating the pull request
   deleteAfter: false,
   // Execute all the script steps except pushing and creating the pull request.

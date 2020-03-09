@@ -1,6 +1,6 @@
 import { resolve } from 'path'
 
-import { readFileContent } from './modules/fs'
+import { readFileContent, readJSONFile } from './modules/fs'
 import { ConfigObject } from './types'
 import config from '../config/config.js'
 
@@ -34,4 +34,10 @@ export async function getPullRequestTemplate() {
     .trim()
 
   return { title, body }
+}
+
+export async function getRepoList() {
+  const listPath = resolve(CONFIG_DIR, 'repos.json')
+  const repoList = await readJSONFile(listPath)
+  return repoList
 }

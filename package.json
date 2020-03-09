@@ -26,6 +26,7 @@
     "colors": "^1.4.0",
     "dotenv": "^8.2.0",
     "esm": "^3.2.25",
+    "fast-deep-equal": "^3.1.1",
     "rimraf": "^3.0.2"
   },
   "repository": "git@github.com:vtex/github-pull-request-script.git",

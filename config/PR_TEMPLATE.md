@@ -1,4 +1,4 @@
-# Sample PR Title
+# Add all-contributors and codeowners
 
 This automated pull request aims to:
 
