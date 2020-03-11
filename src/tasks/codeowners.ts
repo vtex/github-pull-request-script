@@ -10,16 +10,22 @@ const CODEOWNERS = {
 }
 
 const CodeOwnersTask: TaskFunction = async () => {
-  let updated = false
+  let updatedDir = false
+  let updatedContent = false
 
+  const commitMessages: string[] = []
   const rootFilePath = resolvePathCurrentRepo('CODEOWNERS')
   const ghFilePath = resolvePathCurrentRepo('.github', 'CODEOWNERS')
 
+  fs.ensureDirSync(resolvePathCurrentRepo('.github'))
+
   if (fs.pathExistsSync(rootFilePath)) {
+    commitMessages.push('Moved CODEOWNERS to .github/')
+
     log(`Moving CODEOWNERS to .github/`, { indent: 2, color: 'green' })
-    fs.ensureDirSync(resolvePathCurrentRepo('.github'))
+
     fs.moveSync(rootFilePath, ghFilePath)
-    updated = true
+    updatedDir = true
   }
 
   let content: string = await fs
@@ -30,26 +36,29 @@ const CodeOwnersTask: TaskFunction = async () => {
   for (const [team, glob] of Object.entries(CODEOWNERS)) {
     if (!content.includes(team)) {
       content += `\n${glob} ${team}`
-      updated = true
+      updatedContent = true
     }
   }
 
-  if (!updated) {
+  if (!updatedDir && !updatedContent) {
     log(`Skipping CODEOWNERS file update`, { indent: 2, color: 'yellow' })
     return
   }
 
-  log(`Updating CODEOWNERS file`, { indent: 2, color: 'green' })
+  if (updatedContent) {
+    commitMessages.push('Update CODEOWNERS content')
 
-  await fs.writeFile(ghFilePath, content.trim())
+    log(`Updating CODEOWNERS file`, { indent: 2, color: 'green' })
+    await fs.writeFile(ghFilePath, content.trim())
+  }
 
   return {
-    commitMessage: 'Update CODEOWNERS file',
-    // changeLog: {
-    //   action: 'added',
-    //   value:
-    //     'Updated `CODEOWNERS` file with responsible teams for each directory.',
-    // },
+    changes: commitMessages.map(msg => ({
+      type: 'changed',
+      message: msg,
+      changelog: false,
+    })),
+    commitMessage: commitMessages.join(', '),
   }
 }
 

@@ -1,5 +1,6 @@
 import colors from 'colors/safe'
 
+import { TaskChange } from './types'
 import {
   shallowClone,
   hasRepoCloned,
@@ -38,7 +39,7 @@ async function main() {
   const errors: Array<{ repo: string; error: Error; message?: string }> = []
 
   for await (const repoURL of repoURLs) {
-    let changes = 0
+    const changes: TaskChange[] = []
 
     try {
       log(`Repo: ${repoURL}`)
@@ -67,18 +68,19 @@ async function main() {
         const taskResult = await task()
         if (taskResult == null) continue
 
-        changes += 1
+        changes.push(...taskResult.changes)
 
-        if (taskResult.changeLog) {
-          await updateCurrentChangelog(taskResult.changeLog)
+        if (taskResult.changes.some(c => c.changelog === true)) {
+          await updateCurrentChangelog(taskResult.changes)
         }
+
         log(`Commiting "${colors.cyan(taskResult.commitMessage)}"`, {
           indent: 2,
         })
         createCommit(taskResult.commitMessage)
       }
 
-      if (changes === 0) {
+      if (changes.length === 0) {
         log(`No changes made. Skipping pushing.`, {
           indent: 1,
           color: 'yellow',
@@ -93,7 +95,7 @@ async function main() {
         await pushChanges(branchName, true)
         const {
           data: { number },
-        } = await createPullRequest(repoURL)
+        } = await createPullRequest(repoURL, changes)
         const { fullName } = parseRepoUrl(repoURL)
         pulls.push(`https://github.com/${fullName}/pull/${number}`)
       }

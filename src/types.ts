@@ -6,14 +6,20 @@ export type ChangeLogType =
   | 'fixed'
   | 'security'
 
-export interface ChangelogChange {
+export interface TaskChange {
+  type: ChangeLogType
+  message: string
+  changelog: boolean
+}
+
+export interface ChanChangelogEntry {
   action: ChangeLogType
   value: string
 }
 
 export interface TaskSuccess {
+  changes: TaskChange[]
   commitMessage: string
-  changeLog?: ChangelogChange
 }
 
 export type TaskFunction = () => Promise<TaskSuccess | undefined>

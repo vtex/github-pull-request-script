@@ -1,6 +1,5 @@
 # Add all-contributors and codeowners
 
-This automated pull request aims to:
+This an automated pull request that aims to:
 
-- Add `all-contributors` to the project.
-- Add `CODEOWNERS` with mentions to the store-framework dev team and the tech-writers team for `docs` changes.
+%task_list%

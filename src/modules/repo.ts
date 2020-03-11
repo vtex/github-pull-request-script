@@ -2,7 +2,7 @@ import { resolve } from 'path'
 
 import fs from 'fs-extra'
 
-import { ChangelogChange } from '../types'
+import { TaskChange } from '../types'
 import { ROOT_DIR, resolveTmpDir, getPullRequestTemplate } from '../config'
 import { updateChangelog } from './changelog'
 import { createPR } from './github'
@@ -116,15 +116,26 @@ export function getCurrentChangelogPath() {
   return resolvePathCurrentRepo('CHANGELOG.md')
 }
 
-export async function updateCurrentChangelog(changes: ChangelogChange) {
+export async function updateCurrentChangelog(changes: TaskChange[]) {
   const path = getCurrentChangelogPath()
   const content = await fs.readFile(path, { encoding: 'utf-8' }).catch(() => '')
-  const updatedContent = updateChangelog(content, [changes])
+  const updatedContent = updateChangelog(
+    content,
+    changes
+      .filter(c => c.changelog)
+      .map(c => ({
+        action: c.type,
+        value: c.message,
+      }))
+  )
 
   return fs.writeFile(path, updatedContent)
 }
 
-export async function createPullRequest(repoUrl: string) {
+export async function createPullRequest(
+  repoUrl: string,
+  changes: TaskChange[]
+) {
   const { owner, name } = parseRepoUrl(repoUrl)
   const { title, body } = await getPullRequestTemplate()
 
@@ -134,6 +145,9 @@ export async function createPullRequest(repoUrl: string) {
     head: getCurrentBranch(),
     base: 'master',
     title,
-    body,
+    body: body.replace(
+      '%task_list%',
+      changes.map(change => `- ${change.message}`).join('\n')
+    ),
   })
 }

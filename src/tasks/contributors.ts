@@ -31,7 +31,8 @@ const CONFIG_TEMPLATE = {
 }
 
 const CodeOwnersTask: TaskFunction = async () => {
-  let steps = 0
+  let updatedConfig = false
+  const updatedReadme = false
   let readmeFilePath
 
   for await (const path of POSSIBLE_README_FILES) {
@@ -53,7 +54,10 @@ const CodeOwnersTask: TaskFunction = async () => {
   const repoUrl = getCurrentRepoURL()
   const { owner, name } = parseRepoUrl(repoUrl)
 
-  const currentAllContributorsConfig = fs.readJSONSync(allcontributorsPath)
+  const currentAllContributorsConfig = await fs
+    .readJSON(allcontributorsPath)
+    .catch(() => ({}))
+
   const allContributorsConfig = {
     ...CONFIG_TEMPLATE,
     ...currentAllContributorsConfig,
@@ -72,7 +76,7 @@ const CodeOwnersTask: TaskFunction = async () => {
     fs.writeJsonSync(allcontributorsPath, allContributorsConfig, {
       spaces: 2,
     })
-    steps += 1
+    updatedConfig = true
   }
 
   let readmeContent = await fs
@@ -97,19 +101,22 @@ const CodeOwnersTask: TaskFunction = async () => {
     readmeContent = allContributors.initBadge(readmeContent)
 
     fs.writeFileSync(readmeFilePath, readmeContent.trim())
-    steps += 1
+    updatedReadme
   }
 
-  if (steps === 0) {
+  if (!updatedReadme && !updatedConfig) {
     return
   }
 
   return {
+    changes: [
+      {
+        type: 'changed',
+        message: 'Update .all-contributorsrc file',
+        changelog: false,
+      },
+    ],
     commitMessage: 'Update .all-contributorsrc file',
-    // changeLog: {
-    //   action: 'added',
-    //   value: 'Updated `.all-contributorsrc`.',
-    // },
   }
 }
 
