@@ -1,10 +1,9 @@
 import { resolve } from 'path'
 
-import rimraf from 'rimraf'
+import fs from 'fs-extra'
 
 import { ChangelogChange } from '../types'
 import { ROOT_DIR, resolveTmpDir, getPullRequestTemplate } from '../config'
-import { fileExists, writeFileContent, readFileContent } from './fs'
 import { updateChangelog } from './changelog'
 import { createPR } from './github'
 import { runCmd } from './shell'
@@ -38,7 +37,7 @@ export function parseRepoUrl(repoUrl: string) {
 }
 
 export async function hasRepoCloned(repoUrl: string) {
-  return fileExists(getRepoTmpDir(repoUrl))
+  return fs.pathExists(getRepoTmpDir(repoUrl))
 }
 
 export function getTmpRepoName(repoUrl: string) {
@@ -52,7 +51,7 @@ export function getRepoTmpDir(repoUrl: string) {
 }
 
 export function deleteRepo(repoUrl) {
-  rimraf.sync(getRepoTmpDir(repoUrl))
+  fs.removeSync(getRepoTmpDir(repoUrl))
 }
 
 export function shallowClone(repoUrl: string) {
@@ -85,6 +84,7 @@ export function updateCurrentRepo() {
 export function resetBranch(branchName: string) {
   runCmd(`git checkout ${branchName}`)
   runCmd(`git reset --hard origin/master`)
+  runCmd(`git clean -fdx`)
 }
 
 export function switchToBranch(branchName: string) {
@@ -118,10 +118,10 @@ export function getCurrentChangelogPath() {
 
 export async function updateCurrentChangelog(changes: ChangelogChange) {
   const path = getCurrentChangelogPath()
-  const content = (await readFileContent(path)) ?? ''
+  const content = await fs.readFile(path, { encoding: 'utf-8' }).catch(() => '')
   const updatedContent = updateChangelog(content, [changes])
 
-  return writeFileContent(path, updatedContent)
+  return fs.writeFile(path, updatedContent)
 }
 
 export async function createPullRequest(repoUrl: string) {

@@ -1,6 +1,7 @@
+import fs from 'fs-extra'
+
 import { TaskFunction } from '../types'
 import { resolvePathCurrentRepo } from '../modules/repo'
-import { readFileContent, writeFileContent } from '../modules/fs'
 import { log } from '../modules/Logger'
 
 const CODEOWNERS = {
@@ -8,17 +9,24 @@ const CODEOWNERS = {
   '@vtex-apps/technical-writers': 'docs/',
 }
 
-const FILENAME = 'CODEOWNERS'
-
-function getCodeOwnersPath() {
-  return resolvePathCurrentRepo(FILENAME)
-}
-
 const CodeOwnersTask: TaskFunction = async () => {
-  const path = getCodeOwnersPath()
-  let content = ((await readFileContent(path)) ?? '').trim()
-
   let updated = false
+
+  const rootFilePath = resolvePathCurrentRepo('CODEOWNERS')
+  const ghFilePath = resolvePathCurrentRepo('.github', 'CODEOWNERS')
+
+  if (fs.pathExistsSync(rootFilePath)) {
+    log(`Moving CODEOWNERS to .github/`, { indent: 2, color: 'green' })
+    fs.ensureDirSync(resolvePathCurrentRepo('.github'))
+    fs.moveSync(rootFilePath, ghFilePath)
+    updated = true
+  }
+
+  let content: string = await fs
+    .readFile(ghFilePath, { encoding: 'utf-8' })
+    .then(str => str.trim())
+    .catch(() => '')
+
   for (const [team, glob] of Object.entries(CODEOWNERS)) {
     if (!content.includes(team)) {
       content += `\n${glob} ${team}`
@@ -31,9 +39,9 @@ const CodeOwnersTask: TaskFunction = async () => {
     return
   }
 
-  log(`  - Updating CODEOWNERS file`, { indent: 2, color: 'green' })
+  log(`Updating CODEOWNERS file`, { indent: 2, color: 'green' })
 
-  await writeFileContent(path, content.trim())
+  await fs.writeFile(ghFilePath, content.trim())
 
   return {
     commitMessage: 'Update CODEOWNERS file',

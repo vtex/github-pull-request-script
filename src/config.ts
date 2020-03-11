@@ -1,6 +1,7 @@
 import { resolve } from 'path'
 
-import { readFileContent, readJSONFile } from './modules/fs'
+import fs from 'fs-extra'
+
 import { ConfigObject } from './types'
 import config from '../config/config.js'
 
@@ -20,7 +21,9 @@ export function resolveTmpDir(...paths: string[]) {
 
 export async function getPullRequestTemplate() {
   const templatePath = resolve(CONFIG_DIR, 'PR_TEMPLATE.md')
-  const templateContent = (await readFileContent(templatePath)) ?? ''
+  const templateContent = await fs
+    .readFile(templatePath, { encoding: 'utf-8' })
+    .catch(() => '')
 
   const titleMatch = templateContent.match(PR_TEMPLATE_TITLE_PATTERN)
 
@@ -38,6 +41,6 @@ export async function getPullRequestTemplate() {
 
 export async function getRepoList() {
   const listPath = resolve(CONFIG_DIR, 'repos.json')
-  const repoList = await readJSONFile(listPath)
+  const repoList = await fs.readJson(listPath)
   return repoList
 }

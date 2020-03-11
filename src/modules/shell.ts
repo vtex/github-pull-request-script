@@ -1,8 +1,9 @@
 import { execSync } from 'child_process'
 
-export function runCmd(cmd: string, { silent = true } = {}) {
+export function runCmd(cmd: string) {
   const result = execSync(cmd, {
-    stdio: silent ? 'ignore' : 'pipe',
+    encoding: 'utf-8',
+    stdio: 'pipe',
   })
 
   return String(result).trim()

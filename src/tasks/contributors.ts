@@ -1,5 +1,6 @@
 import { relative } from 'path'
 
+import fs from 'fs-extra'
 import deepEqual from 'fast-deep-equal'
 import allContributors from 'all-contributors-cli'
 
@@ -8,14 +9,8 @@ import {
   resolvePathCurrentRepo,
   getCurrentRepoURL,
   parseRepoUrl,
+  getCurrentBranch,
 } from '../modules/repo'
-import {
-  writeFileContent,
-  fileExists,
-  readFileContent,
-  readJSONFile,
-  writeJSONFile,
-} from '../modules/fs'
 import { log } from '../modules/Logger'
 
 const FILENAME = '.all-contributorsrc'
@@ -41,7 +36,7 @@ const CodeOwnersTask: TaskFunction = async () => {
 
   for await (const path of POSSIBLE_README_FILES) {
     const absPath = resolvePathCurrentRepo(path)
-    if (await fileExists(absPath)) {
+    if (fs.pathExistsSync(absPath)) {
       readmeFilePath = absPath
       break
     }
@@ -58,7 +53,7 @@ const CodeOwnersTask: TaskFunction = async () => {
   const repoUrl = getCurrentRepoURL()
   const { owner, name } = parseRepoUrl(repoUrl)
 
-  const currentAllContributorsConfig = await readJSONFile(allcontributorsPath)
+  const currentAllContributorsConfig = fs.readJSONSync(allcontributorsPath)
   const allContributorsConfig = {
     ...CONFIG_TEMPLATE,
     ...currentAllContributorsConfig,
@@ -74,11 +69,15 @@ const CodeOwnersTask: TaskFunction = async () => {
     })
   } else {
     log(`Updating .all-contributorsrc file`, { indent: 2, color: 'green' })
-    writeJSONFile(allcontributorsPath, allContributorsConfig)
+    fs.writeJsonSync(allcontributorsPath, allContributorsConfig, {
+      spaces: 2,
+    })
     steps += 1
   }
 
-  let readmeContent = (await readFileContent(readmeFilePath)) ?? ''
+  let readmeContent = await fs
+    .readFile(readmeFilePath, { encoding: 'utf-8' })
+    .catch(() => '')
 
   if (readmeContent.includes(`ALL-CONTRIBUTORS-LIST:START`)) {
     log(
@@ -97,7 +96,7 @@ const CodeOwnersTask: TaskFunction = async () => {
     readmeContent = allContributors.initContributorsList(readmeContent)
     readmeContent = allContributors.initBadge(readmeContent)
 
-    await writeFileContent(readmeFilePath, readmeContent.trim())
+    fs.writeFileSync(readmeFilePath, readmeContent.trim())
     steps += 1
   }
 
