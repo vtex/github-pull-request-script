@@ -3,7 +3,6 @@ import { resolve } from 'path'
 import fs from 'fs-extra'
 
 import { ConfigObject } from './types'
-import config from '../config/config.js'
 
 const PR_TEMPLATE_TITLE_PATTERN = /^#(?:\s|\w)(.*)$/im
 
@@ -11,12 +10,21 @@ export const ROOT_DIR = process.cwd()
 export const TMP_DIR = resolve(ROOT_DIR, '.tmp')
 export const CONFIG_DIR = resolve(ROOT_DIR, 'config')
 
+let config
+
 export function getConfig(): ConfigObject {
+  if (config) return config
+  // eslint-disable-next-line @typescript-eslint/no-require-imports, global-require
+  config = require(resolve(ROOT_DIR, 'config', 'config.js')).default
   return config
 }
 
 export function resolveTmpDir(...paths: string[]) {
   return resolve(TMP_DIR, ...paths)
+}
+
+export function getAssetsDir() {
+  return resolve(ROOT_DIR, 'assets')
 }
 
 export async function getPullRequestTemplate() {

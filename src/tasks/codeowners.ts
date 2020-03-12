@@ -1,7 +1,7 @@
 import fs from 'fs-extra'
 
 import { TaskFunction } from '../types'
-import { resolvePathCurrentRepo } from '../modules/repo'
+import { resolvePathCurrentRepo, buildCommitMessage } from '../modules/repo'
 import { log } from '../modules/Logger'
 
 const CODEOWNERS = {
@@ -58,7 +58,7 @@ const CodeOwnersTask: TaskFunction = async () => {
       message: msg,
       changelog: false,
     })),
-    commitMessage: commitMessages.join(', '),
+    commitMessage: buildCommitMessage(commitMessages),
   }
 }
 
