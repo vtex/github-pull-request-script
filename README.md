@@ -12,8 +12,6 @@ To execute the script run `yarn go` after installing its dependencies.
 
 Every configuration needed can be set in the `config/` directory.
 
-- The `PR_TEMPLATE.md` file defines the title (the `h1` tag) of every PR being created and its body.
-
 - The `repos.json` is a list of github repository full names: `owner-or-org/repository-name`.
 
 - The `config.js` file configures multiple settings of the script:
@@ -33,6 +31,17 @@ export default {
     codeowners: taskCodeOwners,
     contributors: taskContributors,
   },
+  // Title and body of the PR that's going to be created
+  // Use `%task_list%` to insert a list of changes made.
+  pr: {
+    title: 'A pr title',
+    body: `
+A pr body
+
+With the following changes:
+
+%task_list%`,
+  },
 }
 ```
 
@@ -42,9 +51,9 @@ A task is a simple function used to modify the current repository being worked o
 
 Every task should return `undefined` or an object containing:
 
-- `commitMessage` - the commit message of that change
-- `changeLog` - an object with the following properties
-  - `action` - a keep-a-changelog action: `added`,`changed`,`deprecated`,`removed`,`fixed`,`security`
-  - `value` - the message of this change log entry
+- `changes` - an object with the following properties
+  - `type` - a keep-a-changelog action: `added`,`changed`,`deprecated`,`removed`,`fixed`,`security`
+  - `message` - a message pointing out the change made
+  - `changelog` - a boolean. If set to `true`, this change will be added to the `CHANGELOG.md`.
 
 The `process.cwd()` is changed for each repository being currently worked on. This way you can use the current working directory to resolve files from the root of each repository.

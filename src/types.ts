@@ -19,7 +19,6 @@ export interface ChanChangelogEntry {
 
 export interface TaskSuccess {
   changes: TaskChange[]
-  commitMessage: string
 }
 
 export type TaskFunction = () => Promise<TaskSuccess | undefined>
@@ -31,4 +30,8 @@ export interface ConfigObject {
   deleteAfter: boolean
   dryRun: boolean
   tasks: Record<string, TaskFunction>
+  pr: {
+    title: string
+    body: string
+  }
 }

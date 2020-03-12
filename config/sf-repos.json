@@ -1,5 +1,6 @@
-["vtex-apps/store-theme",
-"vtex-apps/store-components",
+[
+  "vtex-apps/store-theme",
+  "vtex-apps/store-components",
   "vtex-apps/store",
   "vtex-apps/shelf",
   "vtex-apps/login",

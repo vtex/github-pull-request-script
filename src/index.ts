@@ -18,6 +18,7 @@ import {
   createPullRequest,
   deleteRepo,
 } from './modules/repo'
+import { buildCommitMessage } from './modules/text'
 import { log } from './modules/Logger'
 import { getConfig, getRepoList } from './config'
 
@@ -74,10 +75,12 @@ async function main() {
           await updateCurrentChangelog(taskResult.changes)
         }
 
-        log(`Commiting "${colors.cyan(taskResult.commitMessage)}"`, {
-          indent: 2,
-        })
-        createCommit(taskResult.commitMessage)
+        const commitMessage = buildCommitMessage(
+          taskResult.changes.map(c => c.message)
+        )
+
+        log(`Commiting "${colors.cyan(commitMessage)}"`, { indent: 2 })
+        createCommit(commitMessage)
       }
 
       if (changes.length === 0) {
@@ -92,7 +95,7 @@ async function main() {
         log(`Pushing to remote "${branchName}" branch and creating PR`, {
           indent: 1,
         })
-        await pushChanges(branchName, true)
+        await pushChanges(branchName, false)
         const {
           data: { number },
         } = await createPullRequest(repoURL, changes)

@@ -116,7 +116,6 @@ const CodeOwnersTask: TaskFunction = async () => {
         changelog: false,
       },
     ],
-    commitMessage: 'Update .all-contributorsrc file',
   }
 }
 

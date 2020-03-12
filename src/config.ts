@@ -28,21 +28,9 @@ export function getAssetsDir() {
 }
 
 export async function getPullRequestTemplate() {
-  const templatePath = resolve(CONFIG_DIR, 'PR_TEMPLATE.md')
-  const templateContent = await fs
-    .readFile(templatePath, { encoding: 'utf-8' })
-    .catch(() => '')
-
-  const titleMatch = templateContent.match(PR_TEMPLATE_TITLE_PATTERN)
-
-  if (titleMatch == null || titleMatch.index == null) {
-    throw new Error('Missing "# {PR title}" in pull request template')
-  }
-
-  const [fullMatch, title] = titleMatch
-  const body = templateContent
-    .substring(titleMatch.index + fullMatch.length)
-    .trim()
+  const {
+    pr: { title, body },
+  } = getConfig()
 
   return { title, body }
 }

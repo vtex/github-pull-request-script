@@ -1,11 +1,11 @@
 import fs from 'fs-extra'
 
 import { TaskFunction } from '../types'
-import { resolvePathCurrentRepo, buildCommitMessage } from '../modules/repo'
+import { resolvePathCurrentRepo } from '../modules/repo'
 import { log } from '../modules/Logger'
 
 const CODEOWNERS = {
-  '@vtex-apps/store-framework-devs': '*',
+  '@vtex-apps/us-1st-party-apps': '*',
   '@vtex-apps/technical-writers': 'docs/',
 }
 
@@ -58,7 +58,6 @@ const CodeOwnersTask: TaskFunction = async () => {
       message: msg,
       changelog: false,
     })),
-    commitMessage: buildCommitMessage(commitMessages),
   }
 }
 
