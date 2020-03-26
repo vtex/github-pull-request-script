@@ -21,7 +21,16 @@ export interface TaskSuccess {
   changes: TaskChange[]
 }
 
-export type TaskFunction = () => Promise<TaskSuccess | undefined>
+export type TaskFunction = () => Promise<TaskSuccess | void>
+
+export interface TaskModule {
+  name: string
+  task: TaskFunction
+}
+
+export interface TaskOptions {
+  enabled: boolean
+}
 
 export interface ConfigObject {
   githubToken: string
@@ -29,9 +38,14 @@ export interface ConfigObject {
   repos: string[]
   deleteAfter: boolean
   dryRun: boolean
-  tasks: Record<string, TaskFunction>
+  tasks: Array<[TaskModule, TaskOptions]>
   pr: {
     title: string
     body: string
   }
+}
+
+export interface AppManifest {
+  builders: Record<string, string>
+  [key: string]: any
 }

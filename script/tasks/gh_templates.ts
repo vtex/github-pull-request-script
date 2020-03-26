@@ -1,25 +1,18 @@
-import { resolve } from 'path'
-
 import fs from 'fs-extra'
 
-import { getAssetsDir } from '../config'
-import { TaskFunction } from '../types'
+import { resolveAsset } from '../config'
 import { resolvePathCurrentRepo } from '../modules/repo'
 import { log } from '../modules/Logger'
+import { TaskFunction } from '../types'
 
-const PR_TEMPLATE_FILEPATH = resolve(
-  getAssetsDir(),
+const PR_TEMPLATE_FILEPATH = resolveAsset(
   'templates',
   'PULL_REQUEST_TEMPLATE.md'
 )
 
-const ISSUE_TEMPLATE_DIR = resolve(
-  getAssetsDir(),
-  'templates',
-  'ISSUE_TEMPLATE'
-)
+const ISSUE_TEMPLATE_DIR = resolveAsset('templates', 'ISSUE_TEMPLATE')
 
-const CodeOwnersTask: TaskFunction = async () => {
+const task: TaskFunction = async () => {
   const commitMessages: string[] = []
   let updatedPRTemplate = false
   let updatedIssue = false
@@ -71,4 +64,7 @@ const CodeOwnersTask: TaskFunction = async () => {
   }
 }
 
-export default CodeOwnersTask
+export default {
+  name: `github-templates`,
+  task,
+}

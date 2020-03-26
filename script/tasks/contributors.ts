@@ -9,7 +9,6 @@ import {
   resolvePathCurrentRepo,
   getCurrentRepoURL,
   parseRepoUrl,
-  getCurrentBranch,
 } from '../modules/repo'
 import { log } from '../modules/Logger'
 
@@ -30,7 +29,7 @@ const CONFIG_TEMPLATE = {
   contributorsPerLine: 7,
 }
 
-const CodeOwnersTask: TaskFunction = async () => {
+const task: TaskFunction = async () => {
   let updatedConfig = false
   const updatedReadme = false
   let readmeFilePath
@@ -119,4 +118,7 @@ const CodeOwnersTask: TaskFunction = async () => {
   }
 }
 
-export default CodeOwnersTask
+export default {
+  name: `all-contributors`,
+  task,
+}

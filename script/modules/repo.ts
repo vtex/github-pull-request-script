@@ -3,7 +3,7 @@ import { resolve } from 'path'
 import fs from 'fs-extra'
 
 import { TaskChange } from '../types'
-import { ROOT_DIR, resolveTmpDir, getPullRequestTemplate } from '../config'
+import { ROOT_DIR, resolveTmp, getPullRequestTemplate } from '../config'
 import { updateChangelog } from './changelog'
 import { createPR } from './github'
 import { runCmd } from './shell'
@@ -47,7 +47,7 @@ export function getTmpRepoName(repoUrl: string) {
 }
 
 export function getRepoTmpDir(repoUrl: string) {
-  return resolveTmpDir(getTmpRepoName(repoUrl) ?? repoUrl)
+  return resolveTmp(getTmpRepoName(repoUrl) ?? repoUrl)
 }
 
 export function deleteRepo(repoUrl) {

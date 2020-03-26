@@ -14,7 +14,7 @@ Every configuration needed can be set in the `config/` directory.
 
 - The `repos.json` is a list of github repository full names: `owner-or-org/repository-name`.
 
-- The `config.js` file configures multiple settings of the script:
+- The `config.ts` file configures multiple settings of the script:
 
 ```js
 export default {
@@ -47,7 +47,7 @@ With the following changes:
 
 ## Tasks
 
-A task is a simple function used to modify the current repository being worked on.
+A task is an object containing a `name`, and a `task` function used to modify the current repository being worked on.
 
 Every task should return `undefined` or an object containing:
 

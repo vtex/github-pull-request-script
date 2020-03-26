@@ -23,8 +23,8 @@ import { log } from './modules/Logger'
 import { getConfig, getRepoList } from './config'
 
 const CONFIG = getConfig()
-const TASKS = Object.entries(CONFIG.tasks)
 const { branchName } = CONFIG
+const TASKS = CONFIG.tasks.filter(([, options]) => options.enabled)
 
 async function main() {
   if (CONFIG.dryRun) {
@@ -33,9 +33,7 @@ async function main() {
     })
   }
 
-  const repoURLs = (await getRepoList()).map(
-    repo => `git@github.com:${repo}.git`
-  )
+  const repoURLs = getRepoList().map(repo => `git@github.com:${repo}.git`)
   const pulls: string[] = []
   const errors: Array<{ repo: string; error: Error; message?: string }> = []
 
@@ -63,7 +61,8 @@ async function main() {
         switchToBranch(branchName)
       }
 
-      for await (const [taskName, task] of TASKS) {
+      for await (const [taskModule] of TASKS) {
+        const { name: taskName, task } = taskModule
         log(`Running task "${colors.cyan(taskName)}"`, { indent: 1 })
 
         const taskResult = await task()
@@ -78,6 +77,10 @@ async function main() {
         const commitMessage = buildCommitMessage(
           taskResult.changes.map(c => c.message)
         )
+
+        if (commitMessage.length === 0) {
+          throw new Error('Empty commit message')
+        }
 
         log(`Commiting "${colors.cyan(commitMessage)}"`, { indent: 2 })
         createCommit(commitMessage)
