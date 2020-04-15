@@ -98,7 +98,7 @@ async function main() {
         log(`Pushing to remote "${branchName}" branch and creating PR`, {
           indent: 1,
         })
-        await pushChanges(branchName, false)
+        await pushChanges(branchName, true)
         const {
           data: { number },
         } = await createPullRequest(repoURL, changes)

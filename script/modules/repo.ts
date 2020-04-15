@@ -145,9 +145,15 @@ export async function createPullRequest(
     head: getCurrentBranch(),
     base: 'master',
     title,
-    body: body.replace(
-      '%task_list%',
-      changes.map(change => `- ${change.message}`).join('\n')
-    ),
+    body: body
+      .replace(
+        '%task_list%',
+        changes.map(change => `- ${change.message}`).join('\n')
+      )
+      .replace(
+        '%trivial%',
+        changes.some(c => c.changelog) ? '' : '**#trivial**'
+      )
+      .trim(),
   })
 }

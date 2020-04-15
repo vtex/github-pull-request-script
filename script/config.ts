@@ -26,6 +26,10 @@ export function resolveAsset(...paths: string[]) {
   return resolve(ASSETS_DIR, ...paths)
 }
 
+export function parseJSONAsset(...paths: string[]) {
+  return fs.readJsonSync(resolveAsset(...paths))
+}
+
 export async function getPullRequestTemplate() {
   const {
     pr: { title, body },

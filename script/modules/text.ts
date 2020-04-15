@@ -18,5 +18,6 @@ export function buildCommitMessage(parts: string[]) {
   }
 
   output += `and ${parts[parts.length - 1]}`
+
   return output
 }
