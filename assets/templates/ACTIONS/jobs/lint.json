@@ -1,5 +1,5 @@
 {
-  "name": "Danger CI",
+  "name": "Lint",
   "runs-on": "ubuntu-latest",
   "steps": [
     {
@@ -33,11 +33,8 @@
       "run": "yarn install --frozen-lockfile"
     },
     {
-      "name": "Danger",
-      "run": "yarn danger ci",
-      "env": {
-        "GITHUB_TOKEN": "${{ secrets.GITHUB_TOKEN }}"
-      }
+      "name": "Lint project",
+      "uses": "vtex/action-lint@master"
     }
   ]
 }

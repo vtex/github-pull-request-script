@@ -6,12 +6,7 @@ import { runCmd } from '../modules/shell'
 import { parseJSONAsset } from '../config'
 import * as Action from '../modules/action'
 
-const DANGER_ACTION_JOB = parseJSONAsset(
-  'templates',
-  'ACTIONS',
-  'jobs',
-  'danger.json'
-)
+const DANGER_JOB = parseJSONAsset('templates', 'ACTIONS', 'jobs', 'danger.json')
 
 const DANGERFILE_TEMPLATE = `
 // docs at https://github.com/vtex/danger
@@ -32,7 +27,7 @@ const task: TaskFunction = async () => {
     content = `${DANGERFILE_TEMPLATE}\n\n${content}`.trim()
 
     fs.writeFileSync(dangerPath, content)
-    runCmd(`yarn add -D @vtex/danger`)
+    runCmd(`yarn add -D @vtex/danger@latest`)
 
     commitMessages.push('Add danger and @vtex/danger')
     updatedDanger = true
@@ -47,7 +42,7 @@ const task: TaskFunction = async () => {
   }
 
   if (!Action.hasJob('danger-ci')) {
-    Action.addJob('danger-ci', DANGER_ACTION_JOB)
+    Action.addJob('danger-ci', DANGER_JOB)
     commitMessages.push('Add danger job')
     updatedDanger = true
   }
@@ -66,6 +61,6 @@ const task: TaskFunction = async () => {
 }
 
 export default {
-  name: 'danger',
+  name: 'Danger',
   task,
 }

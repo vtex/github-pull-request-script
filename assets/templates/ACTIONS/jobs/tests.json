@@ -1,5 +1,5 @@
 {
-  "name": "Danger CI",
+  "name": "IO app test",
   "runs-on": "ubuntu-latest",
   "steps": [
     {
@@ -29,15 +29,8 @@
       }
     },
     {
-      "name": "yarn install",
-      "run": "yarn install --frozen-lockfile"
-    },
-    {
-      "name": "Danger",
-      "run": "yarn danger ci",
-      "env": {
-        "GITHUB_TOKEN": "${{ secrets.GITHUB_TOKEN }}"
-      }
+      "name": "Run test on every builder directory",
+      "uses": "vtex/action-io-app-test@master"
     }
   ]
 }
