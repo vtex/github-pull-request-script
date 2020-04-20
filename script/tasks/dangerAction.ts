@@ -10,26 +10,42 @@ const DANGER_JOB = parseJSONAsset('templates', 'ACTIONS', 'jobs', 'danger.json')
 
 const DANGERFILE_TEMPLATE = `
 // docs at https://github.com/vtex/danger
-const { assert } = require('@vtex/danger');
+const { verify } = require('@vtex/danger')
 
-assert();
-`.trim()
+verify({
+  keepachangelog: {
+    // set to 'true' to require a new version defined in the changelog change
+    changeVersion: false,
+  },
+})`
 
 const task: TaskFunction = async () => {
   const commitMessages: string[] = []
   let updatedDanger = false
 
   const dangerPath = resolvePathCurrentRepo('dangerfile.js')
+  const eslintIgnorePath = resolvePathCurrentRepo('.eslintignore')
 
-  let content = await fs.readFile(dangerPath).catch(() => '')
+  let dangerContent = await fs.readFile(dangerPath).catch(() => '')
+  const eslintIgnoreContent = await fs
+    .readFile(eslintIgnorePath)
+    .catch(() => '')
 
-  if (!content.includes('@vtex/danger')) {
-    content = `${DANGERFILE_TEMPLATE}\n\n${content}`.trim()
+  if (!dangerContent.includes('@vtex/danger')) {
+    dangerContent = `${DANGERFILE_TEMPLATE}`.trim()
 
-    fs.writeFileSync(dangerPath, content)
+    fs.writeFileSync(dangerPath, dangerContent)
     runCmd(`yarn add -D @vtex/danger@latest`)
 
     commitMessages.push('Add danger and @vtex/danger')
+    updatedDanger = true
+  }
+
+  if (!eslintIgnoreContent.includes('dangerfile.js')) {
+    const newContent = `${eslintIgnoreContent}\ndangerfile.js`
+
+    commitMessages.push('Add dangerfile.js to .eslintignore')
+    fs.writeFileSync(eslintIgnorePath, newContent)
     updatedDanger = true
   }
 

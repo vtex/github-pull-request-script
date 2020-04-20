@@ -22,7 +22,7 @@ export default {
   githubToken: process.env.GH_TOKEN,
   branchName: BRANCH_NAME,
   deleteAfter: false,
-  dryRun: true,
+  dryRun: false,
   pr: {
     title: PR_TITLE,
     body: PR_BODY,

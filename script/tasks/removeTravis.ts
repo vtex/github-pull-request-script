@@ -10,7 +10,7 @@ const task: TaskFunction = async () => {
   const travisPath = resolvePathCurrentRepo('.travis.yml')
 
   if (!fs.pathExistsSync(travisPath)) {
-    log(`Not .travis.yml found. Skipping.`, { indent: 2, color: 'yellow' })
+    log(`No .travis.yml found. Skipping.`, { indent: 2, color: 'yellow' })
     return
   }
 
