@@ -5,7 +5,7 @@ import { resolvePathCurrentRepo } from '../modules/repo'
 import { log } from '../modules/Logger'
 
 const CODEOWNERS = {
-  '@vtex-apps/us-1st-party-apps': '*',
+  '@vtex-apps/store-framework-devs': '*',
   '@vtex-apps/technical-writers': 'docs/',
 }
 
