@@ -5,8 +5,9 @@ import fs from 'fs-extra'
 import { TaskChange } from '../types'
 import { ROOT_DIR, resolveTmp, getPullRequestTemplate } from '../config'
 import { updateChangelog } from './changelog'
-import { createPR } from './github'
+import { createPR, listPRs, updatePR } from './github'
 import { runCmd } from './shell'
+import { log } from './Logger'
 
 const REPO_NAME_PATTERN = /:(.*?)\/(.*?)(?:\.git)?$/i
 
@@ -138,8 +139,7 @@ export async function createPullRequest(
 ) {
   const { owner, name } = parseRepoUrl(repoUrl)
   const { title, body } = await getPullRequestTemplate()
-
-  return createPR({
+  const params = {
     owner,
     repo: name,
     head: getCurrentBranch(),
@@ -155,5 +155,34 @@ export async function createPullRequest(
         changes.some(c => c.changelog) ? '' : '**#trivial**'
       )
       .trim(),
+  }
+
+  return createPR(params).catch(async error => {
+    const isAlreadyExistingError = error?.errors?.find(e =>
+      e.message.includes('A pull request already exists for')
+    )
+
+    if (!isAlreadyExistingError) throw error
+
+    log('PR already exists. Updating it', {
+      indent: 2,
+      type: 'warn',
+      color: 'yellow',
+    })
+
+    const pullResponse = await listPRs({
+      owner: params.owner,
+      repo: params.repo,
+      head: params.head,
+    })
+
+    const currentPull = pullResponse?.data?.[0]
+
+    if (!currentPull) throw error
+
+    return updatePR({
+      ...params,
+      pull_number: currentPull.number,
+    })
   })
 }

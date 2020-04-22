@@ -34,3 +34,11 @@ export const octokit = new MyOctokit({
 export function createPR(params) {
   return octokit.pulls.create(params)
 }
+
+export function listPRs(params) {
+  return octokit.pulls.list(params)
+}
+
+export function updatePR(params) {
+  return octokit.pulls.update(params)
+}
