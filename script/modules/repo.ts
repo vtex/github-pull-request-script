@@ -164,7 +164,7 @@ export async function createPullRequest(
 
     if (!isAlreadyExistingError) throw error
 
-    log('PR already exists. Updating it', {
+    log('PR already exists. Updating it.', {
       indent: 2,
       type: 'warn',
       color: 'yellow',

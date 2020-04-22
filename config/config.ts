@@ -8,8 +8,9 @@ import taskTests from '../script/tasks/testAction'
 import taskLint from '../script/tasks/lintAction'
 import taskRemoveTravis from '../script/tasks/removeTravis'
 
-const BRANCH_NAME = 'chore/danger-integration'
-const PR_TITLE = 'Add pull request actions'
+const BRANCH_NAME = 'chore/pr-actions'
+const PR_TITLE =
+  'Add pull request actions for linting, testing and checking the pr content'
 const PR_BODY = `This an [automated pull request](https://github.com/vtex/github-pull-request-script) that aims to:
 
 %task_list%

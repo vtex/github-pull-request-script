@@ -87,7 +87,7 @@ async function main() {
       }
 
       if (changes.length === 0) {
-        log(`No changes made. Skipping pushing.`, {
+        log(`No changes made. Skipping push.`, {
           indent: 1,
           color: 'yellow',
         })
