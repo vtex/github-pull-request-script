@@ -37,8 +37,3 @@ export async function getPullRequestTemplate() {
 
   return { title, body }
 }
-
-export function getRepoList() {
-  const listPath = resolve(CONFIG_DIR, 'repos.json')
-  return fs.readJsonSync(listPath)
-}

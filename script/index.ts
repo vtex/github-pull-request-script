@@ -20,10 +20,10 @@ import {
 } from './modules/repo'
 import { buildCommitMessage } from './modules/text'
 import { log } from './modules/Logger'
-import { getConfig, getRepoList } from './config'
+import { getConfig } from './config'
 
 const CONFIG = getConfig()
-const { branchName } = CONFIG
+const { branchName, repos } = CONFIG
 const TASKS = CONFIG.tasks.filter(([, options]) => options.enabled)
 
 async function main() {
@@ -33,7 +33,7 @@ async function main() {
     })
   }
 
-  const repoURLs = getRepoList().map(repo => `git@github.com:${repo}.git`)
+  const repoURLs = repos.map(repo => `git@github.com:${repo}.git`)
   const pulls: string[] = []
   const errors: Array<{ repo: string; error: Error; message?: string }> = []
 
