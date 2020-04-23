@@ -73,5 +73,6 @@
   "vtex-apps/tab-layout",
   "vtex-apps/reviews-and-ratings",
   "vtex-apps/breadcrumb",
-  "vtex-apps/product-identifier"
+  "vtex-apps/product-identifier",
+  "vtex-apps/rich-text"
 ]
