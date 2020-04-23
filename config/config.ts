@@ -1,3 +1,6 @@
+import { resolve } from 'path'
+
+import fs from 'fs-extra'
 import 'dotenv/config'
 
 import taskCodeOwners from '../script/tasks/codeowners'
@@ -8,6 +11,7 @@ import taskTests from '../script/tasks/testAction'
 import taskLint from '../script/tasks/lintAction'
 import taskRemoveTravis from '../script/tasks/removeTravis'
 
+const REPO_LIST_FILE = './lists/repos.json'
 const BRANCH_NAME = 'chore/pr-actions'
 const PR_TITLE =
   'Add pull request actions for linting, testing and checking the pr content'
@@ -19,11 +23,15 @@ When approved, feel free to merge it as if it was created by a bot account :robo
 
 %trivial%`.trim()
 
+const args = process.argv.slice(2).map(s => s.replace(/^-+/g, ''))
+const dryRun = args.includes('dry-run')
+
 export default {
   githubToken: process.env.GH_TOKEN,
   branchName: BRANCH_NAME,
   deleteAfter: false,
-  dryRun: false,
+  dryRun,
+  repos: fs.readJsonSync(resolve(__dirname, ...REPO_LIST_FILE.split('/'))),
   pr: {
     title: PR_TITLE,
     body: PR_BODY,
