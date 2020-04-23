@@ -173,7 +173,7 @@ export async function createPullRequest(
     const pullResponse = await listPRs({
       owner: params.owner,
       repo: params.repo,
-      head: params.head,
+      head: `${params.owner}:${params.head}`,
     })
 
     const currentPull = pullResponse?.data?.[0]
