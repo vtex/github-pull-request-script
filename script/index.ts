@@ -120,6 +120,7 @@ async function main() {
     } finally {
       exitRepo()
       if (CONFIG.deleteAfter) {
+        log('Deleting local directory', { indent: 1 })
         deleteRepo(repoURL)
       }
 

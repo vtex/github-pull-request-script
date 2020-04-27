@@ -1,8 +1,21 @@
 import { TaskFunction } from '../types'
 import { parseJSONAsset } from '../config'
 import * as Action from '../modules/action'
+import { resolvePathCurrentRepo } from '../modules/repo'
+import { getAppManifest } from '../modules/io'
 
-const TEST_JOB = parseJSONAsset('templates', 'ACTIONS', 'jobs', 'tests.json')
+const IO_TEST_JOB = parseJSONAsset(
+  'templates',
+  'ACTIONS',
+  'jobs',
+  'io-tests.json'
+)
+const GENERIC_TEST_JOB = parseJSONAsset(
+  'templates',
+  'ACTIONS',
+  'jobs',
+  'generic-test.json'
+)
 
 const task: TaskFunction = async () => {
   const commitMessages: string[] = []
@@ -16,8 +29,16 @@ const task: TaskFunction = async () => {
     updated = true
   }
 
-  if (!Action.hasJob('io-app-test')) {
-    Action.addJob('io-app-test', TEST_JOB)
+  const isIOApp = !!getAppManifest()
+  const jobName = isIOApp ? 'io-app-test' : 'test-ci'
+
+  if (!Action.hasJob(jobName)) {
+    if (isIOApp) {
+      Action.addJob(jobName, IO_TEST_JOB)
+    } else {
+      Action.addJob(jobName, GENERIC_TEST_JOB)
+    }
+
     commitMessages.push('Add test action job')
     updated = true
   }

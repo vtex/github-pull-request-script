@@ -1,0 +1,39 @@
+{
+  "name": "Test CI",
+  "runs-on": "ubuntu-latest",
+  "steps": [
+    {
+      "uses": "actions/checkout@master"
+    },
+    {
+      "uses": "actions/setup-node@master",
+      "with": {
+        "node-version": "12.x"
+      },
+      "env": {
+        "RUNNER_TEMP": "/tmp"
+      }
+    },
+    {
+      "name": "Get yarn cache directory path",
+      "id": "yarn-cache-dir-path",
+      "run": "echo \"::set-output name=dir::$(yarn cache dir)\""
+    },
+    {
+      "uses": "actions/cache@v1",
+      "id": "yarn-cache",
+      "with": {
+        "path": "${{ steps.yarn-cache-dir-path.outputs.dir }}",
+        "key": "${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}",
+        "restore-keys": "${{ runner.os }}-yarn-\n"
+      }
+    },
+    {
+      "run": "yarn install --frozen-lockfile"
+    },
+    {
+      "name": "Run test on every builder directory",
+      "run": "yarn test --passWithNoTests"
+    }
+  ]
+}
