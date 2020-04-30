@@ -31,7 +31,7 @@ const CONFIG_TEMPLATE = {
 
 const task: TaskFunction = async () => {
   let updatedConfig = false
-  const updatedReadme = false
+  let updatedReadme = false
   let readmeFilePath
 
   for await (const path of POSSIBLE_README_FILES) {
@@ -97,15 +97,36 @@ const task: TaskFunction = async () => {
     })
 
     readmeContent = allContributors.initContributorsList(readmeContent)
-    readmeContent = allContributors.initBadge(readmeContent)
+    readmeContent = readmeContent.replace(
+      /Contributions of any kind welcome!/gi,
+      'Contributions of any kind are welcome!'
+    )
 
-    fs.writeFileSync(readmeFilePath, readmeContent.trim())
-    updatedReadme
+    updatedReadme = true
+  }
+
+  if (readmeContent.includes(`ALL-CONTRIBUTORS-BADGE:START`)) {
+    log(
+      `Skipping readme badge update, because it already contains the all-contributors badge.`,
+      {
+        indent: 2,
+        color: 'yellow',
+      }
+    )
+  } else {
+    log(`Updating README with contributors badge`, {
+      indent: 2,
+      color: 'green',
+    })
+    readmeContent = allContributors.initBadge(readmeContent)
+    updatedReadme = true
   }
 
   if (!updatedReadme && !updatedConfig) {
     return
   }
+
+  fs.writeFileSync(readmeFilePath, readmeContent.trim())
 
   return {
     changes: [

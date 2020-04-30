@@ -28,16 +28,43 @@ const task: TaskFunction = async () => {
     updatedDir = true
   }
 
-  let content: string = await fs
+  const content: string = await fs
     .readFile(ghFilePath, { encoding: 'utf-8' })
     .then(str => str.trim())
     .catch(() => '')
 
+  const parsedContent = content
+    .split('\n')
+    .reduce<Record<string, string[]>>((acc, line) => {
+      const [lineGlob, ...teams] = line.split(/\s+/)
+      for (const team of teams) {
+        if (acc[lineGlob] == null) acc[lineGlob] = []
+        acc[lineGlob].push(team)
+      }
+      return acc
+    }, {})
+
   for (const [team, glob] of Object.entries(CODEOWNERS)) {
-    if (!content.includes(team)) {
-      content += `\n${glob} ${team}`
+    if (glob in parsedContent) {
+      if (!parsedContent[glob].includes(team)) {
+        parsedContent[glob].push(team)
+        updatedContent = true
+      }
+    } else {
+      parsedContent[glob] = [team]
       updatedContent = true
     }
+  }
+
+  const newContent = Object.entries(parsedContent)
+    .map(([glob, teams]) => `${glob} ${teams.join(' ')}`)
+    .join('\n')
+
+  let mainCommitMessage = 'Update CODEOWNERS content'
+
+  if (content !== newContent && !updatedContent) {
+    updatedContent = true
+    mainCommitMessage = 'Fix CODEOWNERS content'
   }
 
   if (!updatedDir && !updatedContent) {
@@ -46,10 +73,10 @@ const task: TaskFunction = async () => {
   }
 
   if (updatedContent) {
-    commitMessages.push('Update CODEOWNERS content')
+    commitMessages.push(mainCommitMessage)
 
     log(`Updating CODEOWNERS file`, { indent: 2, color: 'green' })
-    await fs.writeFile(ghFilePath, content.trim())
+    await fs.writeFile(ghFilePath, newContent.trim())
   }
 
   return {
