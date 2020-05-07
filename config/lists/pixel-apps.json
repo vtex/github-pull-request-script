@@ -40,5 +40,6 @@
   "vtex-apps/zopim",
   "vtex-apps/ideacrm",
   "vtex-apps/google-customer-reviews",
-  "vtex-apps/cybersource-fingerprint"
+  "vtex-apps/cybersource-fingerprint",
+  "vtex-apps/bazaarvoice"
 ]

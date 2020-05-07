@@ -42,7 +42,6 @@
   "vtex-apps/product-context",
   "vtex-apps/pixel-interfaces",
   "vtex-apps/product-summary-context",
-  "vtex-apps/image-slider",
   "vtex-apps/product-availability",
   "vtex-apps/slider-layout",
   "vtex-apps/product-gifts",
@@ -72,5 +71,6 @@
   "vtex-apps/tab-layout",
   "vtex-apps/list-context",
   "vtex-apps/iframe",
-  "vtex-apps/shopper-approved"
+  "vtex-apps/shopper-approved",
+  "vtex-apps/condition-layout"
 ]
