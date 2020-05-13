@@ -31,6 +31,14 @@ async function main() {
     log(`Running in dry-run mode. The script won't push and create PRs.`, {
       color: 'yellow',
     })
+  } else if (!CONFIG.dryRun && CONFIG.githubToken === undefined) {
+    log(
+      'No Github token found. Branches will be created, but all pull requests will fail.',
+      {
+        type: 'warn',
+        color: 'yellow',
+      }
+    )
   }
 
   const repoURLs = repos.map(repo => `git@github.com:${repo}.git`)
