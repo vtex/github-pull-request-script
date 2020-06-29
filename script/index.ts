@@ -31,6 +31,15 @@ async function main() {
     log(`Running in dry-run mode. The script won't push and create PRs.`, {
       color: 'yellow',
     })
+  } else if (!CONFIG.dryRun && CONFIG.githubToken == null) {
+    log(
+      'No Github token found. Make sure to define it in your "config.ts" file',
+      {
+        type: 'error',
+        color: 'red',
+      }
+    )
+    process.exit(1)
   }
 
   const repoURLs = repos.map(repo => `git@github.com:${repo}.git`)
