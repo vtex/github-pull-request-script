@@ -1,0 +1,21 @@
+[
+    "vtex-apps/checkout-cartman",
+    "vtex-apps/checkout-components",
+    "vtex-apps/checkout-identification",
+    "vtex-apps/checkout-fullstory",
+    "vtex-apps/checkout-payment",
+    "vtex-apps/checkout-profile",
+    "vtex-apps/checkout-shipping",
+    "vtex-apps/countries-data",
+    "vtex-apps/country-data-settings",
+    "vtex-apps/country-flags",
+    "vtex-apps/document-field",
+    "vtex-apps/geolocation-graphql-interface",
+    "vtex-apps/google-geolocation-resolver",
+    "vtex-apps/order-payment",
+    "vtex-apps/order-profile",
+    "vtex-apps/order-shipping",
+    "vtex-apps/place-components",
+    "vtex-apps/places-graphql",
+    "vtex-apps/shipping-calculator"
+]
