@@ -47,104 +47,19 @@ async function main() {
   const errors: Array<{ repo: string; error: Error; message?: string }> = []
 
   for await (const repoURL of repoURLs) {
-    const changes: TaskChange[] = []
-
     try {
       log(`Repo: ${repoURL}`)
       if (!(await hasRepoCloned(repoURL))) {
         log(`Cloning...`, { indent: 1 })
         shallowClone(repoURL)
       }
-
-      enterRepo(repoURL)
-
-      if (!hasBranch(branchName)) {
-        log(`Creating "${branchName}" branch`, { indent: 1 })
-        createBranch(branchName)
-      } else {
-        log(`Updating the local repo and resetting "${branchName}" branch`, {
-          indent: 1,
-        })
-        updateCurrentRepo()
-        resetBranch(branchName)
-        switchToBranch(branchName)
-      }
-
-      for await (const [taskModule] of TASKS) {
-        const { name: taskName, task } = taskModule
-        log(`Running task "${colors.cyan(taskName)}"`, { indent: 1 })
-
-        const taskResult = await task()
-        if (taskResult == null) continue
-
-        changes.push(...taskResult.changes)
-
-        if (taskResult.changes.some(c => c.changelog === true)) {
-          await updateCurrentChangelog(taskResult.changes)
-        }
-
-        const commitMessage = buildCommitMessage(
-          taskResult.changes.map(c => c.message)
-        )
-
-        if (commitMessage.length === 0) {
-          throw new Error('Empty commit message')
-        }
-
-        log(`Commiting "${colors.cyan(commitMessage)}"`, { indent: 2 })
-        createCommit(commitMessage)
-      }
-
-      if (changes.length === 0) {
-        log(`No changes made. Skipping push.`, {
-          indent: 1,
-          color: 'yellow',
-        })
-        continue
-      }
-
-      if (!CONFIG.dryRun) {
-        log(`Pushing to remote "${branchName}" branch and creating PR`, {
-          indent: 1,
-        })
-        await pushChanges(branchName, true)
-        const {
-          data: { number },
-        } = await createPullRequest(repoURL, changes)
-        const { fullName } = parseRepoUrl(repoURL)
-        pulls.push(`https://github.com/${fullName}/pull/${number}`)
-      }
     } catch (e) {
       log(`Some error occured.`, { indent: 1, color: 'red' })
 
-      if (e.stack.includes('changelog.js')) {
-        errors.push({
-          repo: repoURL,
-          message: `There's some invalid entry in the CHANGELOG.md of the "${repoURL}" repository.`,
-          error: e,
-        })
-      } else {
-        errors.push({ repo: repoURL, error: e })
-      }
+      errors.push({ repo: repoURL, error: e })
     } finally {
-      exitRepo()
-      if (CONFIG.deleteAfter) {
-        log('Deleting local directory', { indent: 1 })
-        deleteRepo(repoURL)
-      }
-
       log('\n')
     }
-  }
-
-  if (pulls.length) {
-    log('\nCreated pull requests:')
-    pulls.forEach(url => {
-      log(`- ${colors.blue(url)}`, {
-        indent: 1,
-        type: 'log',
-      })
-    })
   }
 
   // eslint-disable-next-line vtex/prefer-early-return
