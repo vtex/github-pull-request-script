@@ -15,7 +15,8 @@
     "dev": "tsc -w",
     "test": "vtex-test-tools test",
     "lint": "eslint --quiet --ext ts,tsx .",
-    "go": "node -r ts-node/register/transpile-only script/index.ts"
+    "go": "node -r ts-node/register/transpile-only script/index.ts",
+    "crawl": "node -r ts-node/register/transpile-only script/crawlOrgRepos.ts"
   },
   "devDependencies": {
     "@types/fs-extra": "^8.1.0",
@@ -29,6 +30,7 @@
   },
   "dependencies": {
     "@geut/chan-core": "^2.1.1",
+    "@octokit/core": "^3.2.4",
     "@octokit/plugin-retry": "^3.0.1",
     "@octokit/plugin-throttling": "^3.2.0",
     "@octokit/rest": "^17.0.0",
