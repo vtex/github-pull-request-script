@@ -6,7 +6,7 @@ import { Octokit } from '@octokit/core'
 
 // Create a personal access token at https://github.com/settings/tokens/new?scopes=repo
 const TOKEN = process.env.GITHUB_TOKEN
-const ORG = process.env.ORG || 'vtex'
+const ORG = process.env.ORG || 'vtex-apps'
 
 const octokit = new Octokit({
   auth: TOKEN,

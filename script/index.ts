@@ -46,11 +46,13 @@ async function main() {
   const pulls: string[] = []
   const errors: Array<{ repo: string; error: Error; message?: string }> = []
 
+  let index = 0
   for await (const repoURL of repoURLs) {
+
     try {
       log(`Repo: ${repoURL}`)
       if (!(await hasRepoCloned(repoURL))) {
-        log(`Cloning...`, { indent: 1 })
+        log(`Cloning... ${index}/${repoURLs.length}`, { indent: 1 })
         shallowClone(repoURL)
       }
     } catch (e) {
@@ -60,6 +62,7 @@ async function main() {
     } finally {
       log('\n')
     }
+    index++
   }
 
   // eslint-disable-next-line vtex/prefer-early-return

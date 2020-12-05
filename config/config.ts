@@ -12,7 +12,7 @@ import taskLint from '../script/tasks/lintAction'
 import taskRemoveTravis from '../script/tasks/removeTravis'
 import taskVtexIgnoreChangelog from '../script/tasks/vtexignore-changelog'
 
-const REPO_LIST_FILE = './lists/vtex-repos.json'
+const REPO_LIST_FILE = './lists/vtex-apps-repos.json'
 
 const BRANCH_NAME = 'fix/unignore-changelog'
 
