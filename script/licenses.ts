@@ -11,7 +11,8 @@ const options = {
   start: [path.join(__dirname, '..', '.tmp')],
   unknown: false,
   omitVersion: true,
-  json: 'abc.json',
+  onlyDirectDependencies: true,
+  json: 'abc.json'
 }
 
 crawler.dumpLicenses(options, function callback(error, res) {
