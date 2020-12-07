@@ -7,12 +7,29 @@ import * as json2csv from 'json2csv'
 const fields = ['name', 'url', 'license', 'usedIn', 'since']
 const opts = { fields }
 
+const temp = path.join(__dirname, '..', '.tmp')
+const tempDir = fs.readdirSync(temp)
+
+const storeComponents = path.join(
+  __dirname,
+  '..',
+  '.tmp',
+  'vtex-apps_store-components'
+)
+const storeComponentsReact = path.join(
+  __dirname,
+  '..',
+  '.tmp',
+  'vtex-apps__store-components',
+  'react'
+)
+
 const options = {
-  start: [path.join(__dirname, '..', '.tmp')],
+  start: [storeComponents],
   unknown: false,
   omitVersion: true,
   onlyDirectDependencies: true,
-  json: 'abc.json'
+  json: 'abc.json',
 }
 
 crawler.dumpLicenses(options, function callback(error, res) {
