@@ -4,10 +4,7 @@ import { TaskFunction } from '../types'
 import { resolvePathCurrentRepo } from '../modules/repo'
 import { log } from '../modules/Logger'
 
-const CODEOWNERS = {
-  '@vtex-apps/store-framework-devs': '*',
-  '@vtex-apps/technical-writers': 'docs/',
-}
+const CODEOWNERS: Record<string, string> = {}
 
 const task: TaskFunction = async () => {
   let updatedDir = false
@@ -55,6 +52,9 @@ const task: TaskFunction = async () => {
       updatedContent = true
     }
   }
+
+  parsedContent['messages/'] = ['@vtex-apps/localization']
+  parsedContent['src/i18n/'] = ['@vtex-apps/localization']
 
   const newContent = Object.entries(parsedContent)
     .map(([glob, teams]) => `${glob} ${teams.join(' ')}`)
