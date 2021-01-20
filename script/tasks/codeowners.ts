@@ -20,11 +20,27 @@ const task: TaskFunction = async () => {
   fs.ensureDirSync(resolvePathCurrentRepo('.github'))
 
   if (fs.pathExistsSync(rootFilePath)) {
-    commitMessages.push('Moved CODEOWNERS to .github/')
+    if (fs.pathExistsSync(ghFilePath)) {
+      commitMessages.push('Appended CODEOWNERS to .github/CODEOWNERS')
+      log(`Appending CODEOWNERS to .github/CODEOWNERS`, {
+        indent: 2,
+        color: 'green',
+      })
 
-    log(`Moving CODEOWNERS to .github/`, { indent: 2, color: 'green' })
+      const rootFileContent: string = await fs
+        .readFile(rootFilePath, { encoding: 'utf-8' })
+        .then(str => str.trim())
+        .catch(() => '')
 
-    fs.moveSync(rootFilePath, ghFilePath)
+      await fs.appendFile(ghFilePath, rootFileContent)
+      await fs.unlink(rootFilePath)
+    } else {
+      commitMessages.push('Moved CODEOWNERS to .github/')
+      log(`Moving CODEOWNERS to .github/`, { indent: 2, color: 'green' })
+
+      fs.moveSync(rootFilePath, ghFilePath)
+    }
+
     updatedDir = true
   }
 
