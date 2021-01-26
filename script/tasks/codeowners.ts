@@ -4,10 +4,12 @@ import { TaskFunction } from '../types'
 import { resolvePathCurrentRepo } from '../modules/repo'
 import { log } from '../modules/Logger'
 
-const CODEOWNERS = {
-  '@vtex-apps/store-framework-devs': '*',
-  '@vtex-apps/technical-writers': 'docs/',
-}
+const CODEOWNERS: Array<[string, string]> = [
+  ['@vtex-apps/store-framework-devs', '*'],
+  ['@vtex-apps/technical-writers', 'docs/'],
+  ['@vtex-apps/localization', 'messages/'],
+  ['@vtex-apps/localization', 'src/i18n/'],
+]
 
 const task: TaskFunction = async () => {
   let updatedDir = false
@@ -20,11 +22,27 @@ const task: TaskFunction = async () => {
   fs.ensureDirSync(resolvePathCurrentRepo('.github'))
 
   if (fs.pathExistsSync(rootFilePath)) {
-    commitMessages.push('Moved CODEOWNERS to .github/')
+    if (fs.pathExistsSync(ghFilePath)) {
+      commitMessages.push('Appended CODEOWNERS to .github/CODEOWNERS')
+      log(`Appending CODEOWNERS to .github/CODEOWNERS`, {
+        indent: 2,
+        color: 'green',
+      })
 
-    log(`Moving CODEOWNERS to .github/`, { indent: 2, color: 'green' })
+      const rootFileContent: string = await fs
+        .readFile(rootFilePath, { encoding: 'utf-8' })
+        .then(str => str.trim())
+        .catch(() => '')
 
-    fs.moveSync(rootFilePath, ghFilePath)
+      await fs.appendFile(ghFilePath, rootFileContent)
+      await fs.unlink(rootFilePath)
+    } else {
+      commitMessages.push('Moved CODEOWNERS to .github/')
+      log(`Moving CODEOWNERS to .github/`, { indent: 2, color: 'green' })
+
+      fs.moveSync(rootFilePath, ghFilePath)
+    }
+
     updatedDir = true
   }
 
@@ -44,7 +62,7 @@ const task: TaskFunction = async () => {
       return acc
     }, {})
 
-  for (const [team, glob] of Object.entries(CODEOWNERS)) {
+  for (const [team, glob] of CODEOWNERS) {
     if (glob in parsedContent) {
       if (!parsedContent[glob].includes(team)) {
         parsedContent[glob].push(team)
