@@ -4,14 +4,14 @@ import * as Action from '../modules/action'
 
 const DANGER_JOB = parseJSONAsset('templates', 'ACTIONS', 'jobs', 'danger.json')
 
-const task: TaskFunction = async () => {
+const task: TaskFunction = async ({ defaultBranch }) => {
   const commitMessages: string[] = []
   let updatedDanger = false
 
   Action.ensureActionDir()
 
   if (!Action.hasAction()) {
-    Action.createBaseAction()
+    Action.createBaseAction(defaultBranch)
     commitMessages.push('Add github pr action')
     updatedDanger = true
   }

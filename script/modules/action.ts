@@ -2,10 +2,9 @@ import yaml from 'js-yaml'
 import fs from 'fs-extra'
 
 import { resolvePathCurrentRepo } from './repo'
-import { parseJSONAsset } from '../config'
+import { resolveAsset } from '../config'
 
 const DEFAULT_ACTION_NAME = 'pull-request'
-const DANGER_BASE_ACTION = parseJSONAsset('templates', 'ACTIONS', 'base.json')
 
 export function getActionPath(name = DEFAULT_ACTION_NAME) {
   const actionPath = resolvePathCurrentRepo(
@@ -24,8 +23,16 @@ export function hasAction(name = DEFAULT_ACTION_NAME) {
   return fs.pathExistsSync(getActionPath(name))
 }
 
-export function createBaseAction(name = DEFAULT_ACTION_NAME) {
-  writeActionJSON(DANGER_BASE_ACTION, name)
+export function createBaseAction(
+  defaultBranch: string,
+  name = DEFAULT_ACTION_NAME
+) {
+  const dangerBaseActionStr = fs
+    .readFileSync(resolveAsset('templates', 'ACTIONS', 'base.json'))
+    .toString()
+    .replace('%default_branch%', defaultBranch)
+
+  writeActionJSON(JSON.parse(dangerBaseActionStr), name)
 }
 
 export function readActionJSON(name = DEFAULT_ACTION_NAME) {
