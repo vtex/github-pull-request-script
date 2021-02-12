@@ -4,14 +4,14 @@ import * as Action from '../modules/action'
 
 const LINT_JOB = parseJSONAsset('templates', 'ACTIONS', 'jobs', 'lint.json')
 
-const task: TaskFunction = async () => {
+const task: TaskFunction = async ({ defaultBranch }) => {
   const commitMessages: string[] = []
   let updated = false
 
   Action.ensureActionDir()
 
   if (!Action.hasAction()) {
-    Action.createBaseAction()
+    Action.createBaseAction(defaultBranch)
     commitMessages.push('Add github pr action')
     updated = true
   }

@@ -5,7 +5,7 @@ import fs from 'fs-extra'
 import { TaskChange } from '../types'
 import { ROOT_DIR, resolveTmp, getPullRequestTemplate } from '../config'
 import { updateChangelog } from './changelog'
-import { createPR, listPRs, updatePR } from './github'
+import { createPR, listPRs, updatePR, getDefaultBranch } from './github'
 import { runCmd } from './shell'
 import { log } from './Logger'
 
@@ -78,13 +78,13 @@ export function hasBranch(branchName: string) {
   }
 }
 
-export function updateCurrentRepo() {
-  runCmd(`git fetch origin master --depth 1`)
+export function updateCurrentRepo(defaultBranch: string) {
+  runCmd(`git fetch origin ${defaultBranch} --depth 1`)
 }
 
-export function resetBranch(branchName: string) {
+export function resetBranch(defaultBranch: string, branchName: string) {
   runCmd(`git checkout ${branchName}`)
-  runCmd(`git reset --hard origin/master`)
+  runCmd(`git reset --hard origin/${defaultBranch}`)
   runCmd(`git clean -fdx`)
 }
 
@@ -133,17 +133,23 @@ export async function updateCurrentChangelog(changes: TaskChange[]) {
   return fs.writeFile(path, updatedContent)
 }
 
-export async function createPullRequest(
-  repoUrl: string,
+export async function createPullRequest({
+  defaultBranch,
+  owner,
+  name,
+  changes,
+}: {
+  defaultBranch: string
+  owner: string | null
+  name: string | null
   changes: TaskChange[]
-) {
-  const { owner, name } = parseRepoUrl(repoUrl)
+}) {
   const { title, body } = await getPullRequestTemplate()
   const params = {
     owner,
     repo: name,
     head: getCurrentBranch(),
-    base: 'master',
+    base: defaultBranch,
     title,
     body: body
       .replace(

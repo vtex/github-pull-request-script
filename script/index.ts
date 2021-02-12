@@ -21,6 +21,7 @@ import {
 import { buildCommitMessage } from './modules/text'
 import { log } from './modules/Logger'
 import { getConfig } from './config'
+import { getDefaultBranch } from './modules/github'
 
 const CONFIG = getConfig()
 const { branchName, repos } = CONFIG
@@ -58,6 +59,9 @@ async function main() {
 
       enterRepo(repoURL)
 
+      const { owner, name } = parseRepoUrl(repoURL)
+      const defaultBranch = await getDefaultBranch({ owner, repo: name })
+
       if (!hasBranch(branchName)) {
         log(`Creating "${branchName}" branch`, { indent: 1 })
         createBranch(branchName)
@@ -65,8 +69,8 @@ async function main() {
         log(`Updating the local repo and resetting "${branchName}" branch`, {
           indent: 1,
         })
-        updateCurrentRepo()
-        resetBranch(branchName)
+        updateCurrentRepo(defaultBranch)
+        resetBranch(defaultBranch, branchName)
         switchToBranch(branchName)
       }
 
@@ -74,7 +78,7 @@ async function main() {
         const { name: taskName, task } = taskModule
         log(`Running task "${colors.cyan(taskName)}"`, { indent: 1 })
 
-        const taskResult = await task()
+        const taskResult = await task({ defaultBranch, owner, repo: name })
         if (taskResult == null) continue
 
         changes.push(...taskResult.changes)
@@ -107,10 +111,10 @@ async function main() {
         log(`Pushing to remote "${branchName}" branch and creating PR`, {
           indent: 1,
         })
-        await pushChanges(branchName, true)
+        pushChanges(branchName, true)
         const {
           data: { number },
-        } = await createPullRequest(repoURL, changes)
+        } = await createPullRequest({ defaultBranch, owner, name, changes })
         const { fullName } = parseRepoUrl(repoURL)
         pulls.push(`https://github.com/${fullName}/pull/${number}`)
       }

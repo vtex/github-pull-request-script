@@ -21,7 +21,11 @@ export interface TaskSuccess {
   changes: TaskChange[]
 }
 
-export type TaskFunction = () => Promise<TaskSuccess | void>
+export type TaskFunction = (args: {
+  defaultBranch: string
+  owner: string | null
+  repo: string | null
+}) => Promise<TaskSuccess | void>
 
 export interface TaskModule {
   name: string

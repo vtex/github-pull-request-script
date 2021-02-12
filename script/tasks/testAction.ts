@@ -1,7 +1,6 @@
 import { TaskFunction } from '../types'
 import { parseJSONAsset } from '../config'
 import * as Action from '../modules/action'
-import { resolvePathCurrentRepo } from '../modules/repo'
 import { getAppManifest } from '../modules/io'
 
 const IO_TEST_JOB = parseJSONAsset(
@@ -17,14 +16,14 @@ const GENERIC_TEST_JOB = parseJSONAsset(
   'generic-test.json'
 )
 
-const task: TaskFunction = async () => {
+const task: TaskFunction = async ({ defaultBranch }) => {
   const commitMessages: string[] = []
   let updated = false
 
   Action.ensureActionDir()
 
   if (!Action.hasAction()) {
-    Action.createBaseAction()
+    Action.createBaseAction(defaultBranch)
     commitMessages.push('Add github pr action')
     updated = true
   }

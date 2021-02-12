@@ -42,3 +42,7 @@ export function listPRs(params) {
 export function updatePR(params) {
   return octokit.pulls.update(params)
 }
+
+export function getDefaultBranch(params) {
+  return octokit.repos.get(params).then(({ data }) => data.default_branch)
+}
